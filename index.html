@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elección de Junta Directiva 2027</title>
+    <!-- Enlace al archivo CSS externo -->
+    <link rel="stylesheet" href="./css/style.css">
+    
+    <!-- Librerías para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-logo-container">
+            <img src="img/logo.png (2).jpg" alt="Logo Iglesia" class="header-logo-img" onerror="this.style.display='none'">
+        </div>
+        <h1 id="main-title">Elección de Junta Directiva 2027</h1>
+        <p id="main-subtitle">Módulo de Votación Individual</p>
+    </header>
+
+    <nav id="main-nav" style="display: none;">
+        <button class="nav-btn active" onclick="switchTab('resultados', event)">1. Ver Resultados y Reporte</button>
+        <button class="nav-btn" onclick="switchTab('admin', event)">2. Configurar Candidatos</button>
+        <button class="nav-btn" onclick="switchTab('votar', event)">3. Registro de Voto (Vista Previa)</button>
+    </nav>
+
+    <!-- SECCIÓN DE VOTACIÓN -->
+    <div id="sec-votar" class="section active">
+        <h2>Ingreso del Hermano Votante</h2>
+        <div class="form-group" style="margin-top: 15px;">
+            <label for="dui">Número de DUI del Hermano(a):</label>
+            <input type="text" id="dui" placeholder="00000000-0" maxlength="10" oninput="formatAndValidateDUI(this)" required>
+        </div>
+
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #e2e8f0;">
+
+        <h2>Selección de Candidatos</h2>
+        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 1.15rem;">
+            <strong>Nota:</strong> Toque la foto del candidato que desea elegir para cada cargo.
+        </p>
+
+        <div id="voting-groups-container"></div>
+
+        <button class="btn btn-success" id="btn-registrar-voto" onclick="registrarVoto()">GUARDAR Y REGISTRAR VOTO</button>
+    </div>
+
+    <!-- SECCIÓN DE ADMINISTRACIÓN -->
+    <div id="sec-admin" class="section">
+        
+        <!-- CAJA DE CARGA AUTOMÁTICA -->
+        <div style="background: #e0f2fe; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bae6fd;">
+            <h3 style="color: #0284c7; margin-bottom: 10px;">⚡ Carga Rápida de Candidatos</h3>
+            <p style="margin-bottom: 15px; font-size: 0.95rem; color: #0f172a;">Presiona este botón <strong>una sola vez</strong> para cargar automáticamente a los 13 hermanos en el sistema con sus fotos predeterminadas.</p>
+            <button type="button" class="btn" style="background: #0284c7; color: white; width: 100%; font-size: 1.1rem;" onclick="precargarCandidatos()">📥 Cargar 13 Candidatos Automáticamente</button>
+        </div>
+
+        <h2 id="form-admin-title">Agregar Nuevo Candidato (Manual)</h2>
+        <form id="form-candidato" onsubmit="guardarCandidato(event)" style="margin-top: 15px;">
+            <input type="hidden" id="cand-id">
+            
+            <div class="form-group">
+                <label>Nombres:</label>
+                <input type="text" id="cand-nombre" placeholder="Ej: Juan Antonio" oninput="validateOnlyLetters(this)">
+            </div>
+            <div class="form-group">
+                <label>Apellidos:</label>
+                <input type="text" id="cand-apellido" placeholder="Ej: Pérez García" oninput="validateOnlyLetters(this)">
+            </div>
+            <div class="form-group">
+                <label>Imagen del Candidato (Subir foto O cargar enlace URL):</label>
+                <input type="file" id="cand-file" accept="image/*" onchange="convertirImagen(this)">
+                <input type="text" id="cand-foto" placeholder="O pega el enlace URL de la foto aquí" style="margin-top: 8px;">
+            </div>
+            
+            <button type="submit" id="btn-submit-candidato" class="btn btn-primary">Agregar Candidato</button>
+            <button type="button" id="btn-cancel-edit" class="btn cancel-btn" onclick="cancelarEdicion()">Cancelar Edición</button>
+        </form>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
+
+        <h2>Lista Global de Candidatos Registrados</h2>
+        <div class="admin-grid" id="admin-groups-container" style="margin-top: 15px;"></div>
+    </div>
+
+    <!-- SECCIÓN DE RESULTADOS Y PDF -->
+    <div id="sec-resultados" class="section">
+        <h2>Conteo Global y Reportes</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados en vivo y descarga de registros.</p>
+
+        <!-- PANEL DE RESCATE OFFLINE -->
+        <div id="offline-sync-banner" style="display: none; background: #fef3c7; border: 2px solid #f59e0b; padding: 18px; border-radius: 10px; margin-bottom: 25px;">
+            <h3 style="color: #b45309; margin-bottom: 8px;">⚠️ Votos guardados sin internet en este dispositivo</h3>
+            <p style="color: #78350f; margin-bottom: 15px; font-size: 0.95rem;">
+                Tienes <strong id="offline-count">0</strong> voto(s) guardado(s) localmente porque falló la conexión. Cuando tengas internet, presiona el botón para subirlos a la nube oficial.
+            </p>
+            <button class="btn" style="background: #d97706; color: white; width: 100%;" onclick="sincronizarVotosLocales()">☁️ Sincronizar Votos Pendientes Ahora</button>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="renderizarResultados()">Actualizar / Ver Conteo</button>
+        </div>
+
+        <div id="results-container" style="margin-top: 20px;"></div>
+
+        <!-- Botones de PDF al final -->
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 35px; padding-top: 20px; border-top: 1px solid var(--border); justify-content: flex-end;">
+            <button class="btn btn-success" style="margin-top: 0; width: auto; padding: 14px 22px; font-size: 1rem;" onclick="descargarPDF()">📄 Descargar Detalle por DUI</button>
+            <button class="btn btn-success" style="margin-top: 0; width: auto; padding: 14px 22px; font-size: 1rem; background: #047857;" onclick="descargarPDFTotales()">🏆 Descargar PDF de Totales</button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts de Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+    // Configuración conectada al proyecto Plan B (plan-b-d86d4)
+    const firebaseConfig = {
+        apiKey: "AIzaSyA0RwXKv9tG4xVwe6QiLKdcHu2M6I9XjwU",
+        authDomain: "plan-b-d86d4.firebaseapp.com",
+        projectId: "plan-b-d86d4",
+        storageBucket: "plan-b-d86d4.firebasestorage.app",
+        messagingSenderId: "347643784907",
+        appId: "1:347643784907:web:23cb593f4df242f717b54e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const GRUPOS = ["Misionero General", "Ministro", "Diaconos", "Secretario", "Tesorero"];
+    const NOMBRES_MOSTRAR = {
+        "Misionero General": "MISIONERO (PRESIDENTE)",
+        "Ministro": "MINISTRO",
+        "Diaconos": "DIÁCONOS",
+        "Secretario": "SECRETARIO",
+        "Tesorero": "TESORERO"
+    };
+
+    let base64TempImage = "";
+    let candidatos = JSON.parse(localStorage.getItem('candidatos_cache_plan_b')) || [];
+    let seleccionesActuales = {};
+    let ordenPorGrupo = {};
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const esAdmin = urlParams.get('admin') === 'true';
+
+    const candidatosPorDefecto = [
+        { nombre: "Daniel", apellido: "Aguilar", foto: "img/1.jpeg" },
+        { nombre: "Jose", apellido: "Trinidad", foto: "img/2.jpeg" },
+        { nombre: "Juan", apellido: "Juarez", foto: "img/3.jpeg" },
+        { nombre: "Luis", apellido: "Carpio", foto: "img/4.jpeg" },
+        { nombre: "Luis", apellido: "Cortez", foto: "img/5.jpeg" },
+        { nombre: "Nestor", apellido: "Santana", foto: "img/6.jpeg" },
+        { nombre: "Nieves", apellido: "Ramos", foto: "img/7.jpeg" },
+        { nombre: "Oscar", apellido: "Claros", foto: "img/8.jpeg" },
+        { nombre: "Oscar", apellido: "Iglesias", foto: "img/9.jpeg" },
+        { nombre: "Osmin", apellido: "Coreas", foto: "img/10.jpeg" },
+        { nombre: "Victor", apellido: "Navarrete", foto: "img/11.jpeg" },
+        { nombre: "Roger", apellido: "Rivas", foto: "img/12.jpeg" },
+        { nombre: "Rafael", apellido: "Aguirre", foto: "img/13.jpeg" }
+    ];
+
+    // --- FUNCIONES DE RESPALDO LOCAL (LOCALSTORAGE) ---
+    function obtenerVotosLocales() {
+        return JSON.parse(localStorage.getItem('votos_offline_pendientes_plan_b')) || [];
+    }
+
+    function guardarVotoLocal(votoObj) {
+        const pendientes = obtenerVotosLocales();
+        pendientes.push(votoObj);
+        localStorage.setItem('votos_offline_pendientes_plan_b', JSON.stringify(pendientes));
+        actualizarBannerOffline();
+    }
+
+    function actualizarBannerOffline() {
+        const pendientes = obtenerVotosLocales();
+        const banner = document.getElementById('offline-sync-banner');
+        const contador = document.getElementById('offline-count');
+        
+        if (banner && contador) {
+            if (pendientes.length > 0) {
+                contador.innerText = pendientes.length;
+                banner.style.display = 'block';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+    }
+
+    async function sincronizarVotosLocales() {
+        const pendientes = obtenerVotosLocales();
+        if (pendientes.length === 0) {
+            alert("No hay votos pendientes por sincronizar.");
+            return;
+        }
+
+        if (!navigator.onLine) {
+            alert("Sigues sin conexión a internet. Conéctate a una red Wi-Fi o datos móviles e intenta de nuevo.");
+            return;
+        }
+
+        let subidos = 0;
+        let duplicados = 0;
+        let fallidos = [];
+
+        for (let voto of pendientes) {
+            try {
+                const duiDoc = await db.collection("duis").doc(voto.dui).get();
+                if (duiDoc.exists) {
+                    duplicados++;
+                    continue;
+                }
+
+                const batch = db.batch();
+                batch.set(db.collection("duis").doc(voto.dui), { 
+                    registradoEl: firebase.firestore.FieldValue.serverTimestamp(),
+                    sincronizadoOffline: true 
+                });
+                
+                const nuevoVotoRef = db.collection("votos").doc();
+                batch.set(nuevoVotoRef, {
+                    dui: voto.dui,
+                    votos: voto.votos,
+                    fecha: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await batch.commit();
+                subidos++;
+            } catch (error) {
+                fallidos.push(voto);
+            }
+        }
+
+        localStorage.setItem('votos_offline_pendientes_plan_b', JSON.stringify(fallidos));
+        actualizarBannerOffline();
+        renderizarResultados();
+
+        alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados por DUI repetido: ${duplicados}\n❌ Pendientes por error: ${fallidos.length}`);
+    }
+
+    async function precargarCandidatos() {
+        if(confirm("¿Seguro que deseas cargar los 13 candidatos automáticamente? (Asegúrate de no haberlos agregado ya para evitar duplicados)")) {
+            try {
+                const batch = db.batch();
+                candidatosPorDefecto.forEach((c) => {
+                    const docRef = db.collection("candidatos").doc();
+                    batch.set(docRef, {
+                        nombre: c.nombre,
+                        apellido: c.apellido,
+                        foto: c.foto,
+                        creado: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                await batch.commit();
+                alert("¡Los 13 candidatos fueron registrados con éxito!");
+            } catch (error) {
+                alert("Hubo un error al cargarlos: " + error.message);
+            }
+        }
+    }
+
+    function inicializarModo() {
+        const nav = document.getElementById('main-nav');
+        actualizarBannerOffline();
+
+        if (candidatos.length === 0) {
+            renderizarModuloVotacion();
+        }
+
+        if (esAdmin) {
+            nav.style.display = 'flex';
+            document.getElementById('main-subtitle').innerText = "Panel Principal de Control y Conteo";
+            switchTab('resultados');
+        } else {
+            nav.style.display = 'none';
+            document.getElementById('main-subtitle').innerText = "Módulo de Votación Individual";
+            switchTab('votar');
+        }
+    }
+
+    db.collection("candidatos").onSnapshot(
+        snapshot => {
+            if (!snapshot.empty) {
+                candidatos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                localStorage.setItem('candidatos_cache_plan_b', JSON.stringify(candidatos));
+            }
+            
+            if (document.getElementById('sec-votar').classList.contains('active')) renderizarModuloVotacion();
+            if (document.getElementById('sec-admin').classList.contains('active')) renderizarModuloAdmin();
+        },
+        error => {
+            console.error("Error conectando a Firebase:", error);
+            if (document.getElementById('sec-votar').classList.contains('active')) renderizarModuloVotacion();
+        }
+    );
+
+    function switchTab(tab, event) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(`sec-${tab}`).classList.add('active');
+        if(event && event.target) event.target.classList.add('active');
+
+        if(tab === 'votar') renderizarModuloVotacion();
+        if(tab === 'admin') renderizarModuloAdmin();
+        if(tab === 'resultados') {
+            actualizarBannerOffline();
+            renderizarResultados();
+        }
+    }
+
+    function validateOnlyLetters(input) {
+        input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    }
+
+    function formatAndValidateDUI(input) {
+        let raw = input.value.replace(/\D/g, '');
+        if (raw.length > 9) raw = raw.substring(0, 9);
+        if (raw.length > 8) {
+            input.value = raw.substring(0, 8) + '-' + raw.substring(8, 9);
+        } else {
+            input.value = raw;
+        }
+    }
+
+    function convertirImagen(element) {
+        const file = element.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                base64TempImage = reader.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async function guardarCandidato(e) {
+        e.preventDefault();
+        const id = document.getElementById('cand-id').value;
+        const nombre = document.getElementById('cand-nombre').value.trim();
+        const apellido = document.getElementById('cand-apellido').value.trim();
+        let foto = document.getElementById('cand-foto').value.trim();
+
+        if (base64TempImage) foto = base64TempImage;
+
+        if (!nombre || !apellido) {
+            alert('El nombre y apellido son obligatorios.');
+            return;
+        }
+
+        try {
+            if (id) {
+                const dataUpdate = { nombre, apellido };
+                if (foto) dataUpdate.foto = foto;
+                await db.collection("candidatos").doc(id).update(dataUpdate);
+                alert('¡Candidato actualizado con éxito!');
+            } else {
+                if (!foto) {
+                    alert('Debe subir una imagen local o ingresar la URL de la foto.');
+                    return;
+                }
+                await db.collection("candidatos").add({
+                    nombre,
+                    apellido,
+                    foto,
+                    creado: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('Candidato agregado correctamente.');
+            }
+            cancelarEdicion();
+        } catch (error) {
+            alert("Error al guardar candidato: " + error.message);
+        }
+    }
+
+    function editarCandidato(id) {
+        const c = candidatos.find(item => item.id === id);
+        if (!c) return;
+
+        document.getElementById('cand-id').value = c.id;
+        document.getElementById('cand-nombre').value = c.nombre;
+        document.getElementById('cand-apellido').value = c.apellido;
+        document.getElementById('cand-foto').value = (c.foto && c.foto.startsWith('data:image')) ? '' : c.foto;
+
+        document.getElementById('form-admin-title').innerText = "Editar Candidato";
+        document.getElementById('btn-submit-candidato').innerText = "Actualizar Información";
+        document.getElementById('btn-cancel-edit').style.display = "inline-block";
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelarEdicion() {
+        document.getElementById('form-candidato').reset();
+        document.getElementById('cand-id').value = "";
+        document.getElementById('cand-file').value = "";
+        base64TempImage = "";
+
+        document.getElementById('form-admin-title').innerText = "Agregar Nuevo Candidato al Padrón";
+        document.getElementById('btn-submit-candidato').innerText = "Agregar Candidato";
+        document.getElementById('btn-cancel-edit').style.display = "none";
+    }
+
+    async function eliminarCandidato(id) {
+        if(confirm('¿Está seguro de eliminar este candidato? Desaparecerá de todos los cargos.')) {
+            try {
+                await db.collection("candidatos").doc(id).delete();
+            } catch (error) {
+                alert("Error al eliminar candidato: " + error.message);
+            }
+        }
+    }
+
+    function renderizarModuloAdmin() {
+        const container = document.getElementById('admin-groups-container');
+        container.innerHTML = "";
+
+        if(candidatos.length === 0) {
+            container.innerHTML = `<p style="color: var(--text-muted); font-style: italic; width: 100%;">Aún no hay candidatos. Puedes agregarlos usando el botón azul de arriba.</p>`;
+            return;
+        }
+
+        candidatos.forEach(c => {
+            container.innerHTML += `
+                <div class="candidate-card admin-card">
+                    <img src="${c.foto}" class="candidate-img" alt="Foto">
+                    <div class="candidate-name" style="margin-bottom: 10px;">${c.nombre} ${c.apellido}</div>
+                    <button class="btn btn-edit" style="width: 100%; margin-bottom: 5px; font-size: 0.9rem; padding: 8px;" onclick="editarCandidato('${c.id}')">Editar</button>
+                    <button class="btn btn-danger" style="width: 100%; font-size: 0.9rem; padding: 8px;" onclick="eliminarCandidato('${c.id}')">Eliminar</button>
+                </div>
+            `;
+        });
+    }
+
+    // Mezclar orden de candidatos (Algoritmo Fisher-Yates)
+    function mezclarArray(array) {
+        let copia = [...array];
+        for (let i = copia.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copia[i], copia[j]] = [copia[j], copia[i]];
+        }
+        return copia;
+    }
+
+    // Función que intercala en desorden: 2 nuevos, 1 viejo, 1 nuevo, 2 viejos, etc.
+    function generarOrdenGrupo(listaCandidatos) {
+        const viejosNombres = [
+            "luis cortez",
+            "nieves ramos",
+            "oscar claros",
+            "oscar iglesias",
+            "victor navarrete",
+            "roger rivas",
+            "rafael aguirre"
+        ];
+
+        const nuevos = [];
+        const viejos = [];
+
+        listaCandidatos.forEach(c => {
+            const nombreCompleto = `${c.nombre} ${c.apellido}`
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+
+            if (viejosNombres.includes(nombreCompleto)) {
+                viejos.push(c);
+            } else {
+                nuevos.push(c);
+            }
+        });
+
+        const nuevosMezclados = mezclarArray(nuevos);
+        const viejosMezclados = mezclarArray(viejos);
+
+        const patron = [
+            'nuevo', 'nuevo', 
+            'viejo', 
+            'nuevo', 
+            'viejo', 'viejo', 
+            'nuevo', 'viejo', 'nuevo', 'viejo', 'nuevo', 'viejo', 'viejo'
+        ];
+
+        const resultado = [];
+        let iNuevo = 0;
+        let iViejo = 0;
+
+        for (let tipo of patron) {
+            if (tipo === 'nuevo' && iNuevo < nuevosMezclados.length) {
+                resultado.push(nuevosMezclados[iNuevo++]);
+            } else if (tipo === 'viejo' && iViejo < viejosMezclados.length) {
+                resultado.push(viejosMezclados[iViejo++]);
+            }
+        }
+
+        while (iNuevo < nuevosMezclados.length) resultado.push(nuevosMezclados[iNuevo++]);
+        while (iViejo < viejosMezclados.length) resultado.push(viejosMezclados[iViejo++]);
+
+        return resultado;
+    }
+
+    function renderizarModuloVotacion() {
+        const container = document.getElementById('voting-groups-container');
+        container.innerHTML = "";
+        seleccionesActuales = {};
+        ordenPorGrupo = {};
+
+        GRUPOS.forEach(grupo => {
+            const prefix = grupo.replace(/\s+/g, '');
+            const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
+            
+            ordenPorGrupo[grupo] = generarOrdenGrupo(candidatos);
+            
+            let html = `<div class="group-title">${tituloMostrar}</div>`;
+            
+            if(candidatos.length === 0) {
+                html += `<p style="color: var(--text-muted); font-style: italic;">Aún no hay candidatos en el sistema. El administrador debe agregarlos primero.</p>`;
+            } else {
+                html += `<div class="candidates-grid" id="grid-${prefix}">`;
+                ordenPorGrupo[grupo].forEach(c => {
+                    html += `
+                        <div class="candidate-card" id="card-${prefix}-${c.id}" onclick="seleccionarCandidato('${grupo}', '${c.id}')">
+                            <img src="${c.foto}" class="candidate-img" alt="Foto">
+                            <div class="candidate-name">${c.nombre}<br>${c.apellido}</div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            container.innerHTML += html;
+        });
+    }
+
+    // Selección libre por cargo: NO bloquea al candidato en los demás grupos
+    function seleccionarCandidato(grupo, candId) {
+        const prefix = grupo.replace(/\s+/g, '');
+        const cardActual = document.getElementById(`card-${prefix}-${candId}`);
+
+        candidatos.forEach(c => {
+            const el = document.getElementById(`card-${prefix}-${c.id}`);
+            if(el) el.classList.remove('selected');
+        });
+
+        cardActual.classList.add('selected');
+        seleccionesActuales[grupo] = candId;
+    }
+
+    async function registrarVoto() {
+        const duiInput = document.getElementById('dui');
+        const btnVotar = document.getElementById('btn-registrar-voto');
+        const dui = duiInput.value.trim();
+
+        if (!dui || dui.length !== 10) {
+            alert('Por favor ingrese un número de DUI válido y completo (9 dígitos).');
+            return;
+        }
+
+        for (let grupo of GRUPOS) {
+            if (candidatos.length > 0 && !seleccionesActuales[grupo]) {
+                const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
+                alert(`Falta seleccionar un candidato para el cargo: ${tituloMostrar}`);
+                return;
+            }
+        }
+
+        const pendientes = obtenerVotosLocales();
+        if (pendientes.some(v => v.dui === dui)) {
+            alert('¡ERROR! Este DUI ya emitió su voto en este dispositivo. No se permite votar dos veces.');
+            return;
+        }
+
+        btnVotar.disabled = true;
+        btnVotar.innerText = "REGISTRANDO VOTO...";
+
+        const paqueteVoto = {
+            dui,
+            votos: { ...seleccionesActuales },
+            fechaLocal: new Date().toISOString()
+        };
+
+        if (!navigator.onLine) {
+            guardarVotoLocal(paqueteVoto);
+            limpiarFormularioTrasVoto(duiInput, btnVotar, '¡Voto guardado en modo SIN INTERNET (Respaldo Local)! Listo para el siguiente hermano.');
+            return;
+        }
+
+        try {
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Tiempo de espera agotado")), 5000)
+            );
+
+            const firebaseProcess = async () => {
+                const duiDoc = await db.collection("duis").doc(dui).get();
+                if (duiDoc.exists) {
+                    throw new Error("DUI_DUPLICADO");
+                }
+
+                const batch = db.batch();
+                batch.set(db.collection("duis").doc(dui), { registradoEl: firebase.firestore.FieldValue.serverTimestamp() });
+                
+                const nuevoVotoRef = db.collection("votos").doc();
+                batch.set(nuevoVotoRef, {
+                    dui,
+                    votos: { ...seleccionesActuales },
+                    fecha: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await batch.commit();
+            };
+
+            await Promise.race([firebaseProcess(), timeoutPromise]);
+
+            limpiarFormularioTrasVoto(duiInput, btnVotar, '¡Voto registrado con éxito! Sistema limpio y listo para el siguiente hermano.');
+
+        } catch (error) {
+            if (error.message === "DUI_DUPLICADO") {
+                alert('¡ERROR! Este DUI ya emitió su voto. No se permite votar dos veces.');
+                btnVotar.disabled = false;
+                btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
+            } else {
+                guardarVotoLocal(paqueteVoto);
+                limpiarFormularioTrasVoto(duiInput, btnVotar, 'Conexión lenta o caída: ¡Tu voto se aseguró en el respaldo local del equipo! Listo para el siguiente hermano.');
+            }
+        }
+    }
+
+    function limpiarFormularioTrasVoto(duiInput, btnVotar, mensaje) {
+        duiInput.value = "";
+        renderizarModuloVotacion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        btnVotar.disabled = false;
+        btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
+        alert(mensaje);
+    }
+
+    async function obtenerTodosLosVotosCombinados() {
+        let votosNube = [];
+        try {
+            if (navigator.onLine) {
+                const snapshot = await db.collection("votos").get();
+                votosNube = snapshot.docs.map(doc => doc.data());
+            }
+        } catch (e) {
+            console.warn("No se pudo leer Firebase, mostrando solo datos locales.");
+        }
+        const votosLocales = obtenerVotosLocales();
+        return [...votosNube, ...votosLocales];
+    }
+
+    async function renderizarResultados() {
+        const container = document.getElementById('results-container');
+        container.innerHTML = "<p style='color: var(--text-muted);'>Cargando resultados globales...</p>";
+        actualizarBannerOffline();
+
+        try {
+            const votosGuardados = await obtenerTodosLosVotosCombinados();
+            container.innerHTML = "";
+
+            GRUPOS.forEach(grupo => {
+                const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
+                
+                let conteo = candidatos.map(c => {
+                    const totalVotos = votosGuardados.filter(v => v.votos && v.votos[grupo] === c.id).length;
+                    return { ...c, votos: totalVotos };
+                });
+
+                conteo.sort((a, b) => b.votos - a.votos);
+                let maxVotos = conteo.length > 0 ? conteo[0].votos : 0;
+
+                let html = `<div class="group-title">${tituloMostrar}</div>`;
+                
+                if(candidatos.length === 0) {
+                    html += `<p style="color: var(--text-muted); font-style: italic;">No hay candidatos registrados.</p>`;
+                } else {
+                    html += `
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidato</th>
+                                    <th style="width: 140px; text-align: center;">Total Votos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    conteo.forEach(c => {
+                        let esGanador = (c.votos === maxVotos && maxVotos > 0);
+                        let filaEstilo = esGanador ? 'background-color: #ecfdf5; border-left: 4px solid var(--success);' : '';
+                        let trofeo = esGanador ? ' 🏆 (GANADOR)' : '';
+                        let colorTexto = esGanador ? 'color: var(--success);' : 'color: var(--text-main);';
+                        let colorBadge = esGanador ? 'background: var(--success);' : '';
+
+                        if (c.votos > 0 || esAdmin) {
+                            html += `
+                                <tr style="${filaEstilo}">
+                                    <td><strong style="text-transform: uppercase; font-size: 1.05rem; ${colorTexto}">${c.nombre} ${c.apellido}${trofeo}</strong></td>
+                                    <td style="text-align: center;"><span class="badge-votes" style="${colorBadge}">${c.votos}</span></td>
+                                </tr>
+                            `;
+                        }
+                    });
+                    html += `</tbody></table>`;
+                }
+                container.innerHTML += html;
+            });
+        } catch (error) {
+            container.innerHTML = "<p style='color: red;'>Error al cargar resultados: " + error.message + "</p>";
+        }
+    }
+
+    async function descargarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape'); 
+
+        doc.setFontSize(14);
+        doc.text("Reporte Detallado de Votaciones - Elección Junta Directiva 2027", 14, 15);
+        doc.setFontSize(10);
+        doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 22);
+
+        try {
+            const votosList = await obtenerTodosLosVotosCombinados();
+
+            const dictCandidatos = {};
+            candidatos.forEach(c => dictCandidatos[c.id] = `${c.nombre} ${c.apellido}`);
+
+            const tableColumn = ["DUI del Votante", "Misionero (Presidente)", "Ministro", "Diáconos", "Secretario", "Tesorero"];
+            const tableRows = [];
+
+            votosList.forEach(voto => {
+                const row = [
+                    voto.dui,
+                    dictCandidatos[voto.votos["Misionero General"]] || "Ninguno",
+                    dictCandidatos[voto.votos["Ministro"]] || "Ninguno",
+                    dictCandidatos[voto.votos["Diaconos"]] || "Ninguno",
+                    dictCandidatos[voto.votos["Secretario"]] || "Ninguno",
+                    dictCandidatos[voto.votos["Tesorero"]] || "Ninguno"
+                ];
+                tableRows.push(row);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 30,
+                styles: { fontSize: 9, cellPadding: 3 },
+                headStyles: { fillColor: [30, 64, 175], textColor: [255, 255, 255] },
+                alternateRowStyles: { fillColor: [241, 245, 249] }
+            });
+
+            doc.save("Reporte_Votos_Detallado_2027.pdf");
+        } catch (error) {
+            alert("Error al generar el PDF: " + error.message);
+        }
+    }
+
+    async function descargarPDFTotales() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('portrait'); 
+
+        doc.setFontSize(16);
+        doc.text("Resultados Oficiales - Elección Junta Directiva 2027", 14, 15);
+        doc.setFontSize(10);
+        doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 22);
+
+        try {
+            const votosList = await obtenerTodosLosVotosCombinados();
+            const totalVotantes = votosList.length;
+
+            doc.setFontSize(12);
+            doc.text(`Total general de hermanos que votaron: ${totalVotantes}`, 14, 32);
+
+            let startY = 45;
+
+            GRUPOS.forEach(grupo => {
+                const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
+                
+                let conteo = candidatos.map(c => {
+                    const totalVotos = votosList.filter(v => v.votos && v.votos[grupo] === c.id).length;
+                    return { nombre: `${c.nombre} ${c.apellido}`, votos: totalVotos };
+                });
+
+                conteo.sort((a, b) => b.votos - a.votos);
+                let maxVotos = conteo.length > 0 ? conteo[0].votos : 0;
+
+                const tableColumn = ["Candidato", "Total de Votos Obtenidos"];
+                const tableRows = [];
+
+                conteo.forEach(c => {
+                    let nombreMostrado = c.nombre;
+                    if (c.votos === maxVotos && maxVotos > 0) {
+                        nombreMostrado += " (GANADOR)";
+                    }
+                    tableRows.push([nombreMostrado, c.votos.toString()]);
+                });
+
+                doc.setFontSize(12);
+                doc.text(`Resultados para el cargo de: ${tituloMostrar}`, 14, startY);
+                
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: startY + 5,
+                    styles: { fontSize: 10, cellPadding: 3 },
+                    headStyles: { fillColor: [4, 120, 87], textColor: [255, 255, 255] }, 
+                    alternateRowStyles: { fillColor: [241, 245, 249] }
+                });
+
+                startY = doc.lastAutoTable.finalY + 15;
+                
+                if (startY > 260) {
+                    doc.addPage();
+                    startY = 20;
+                }
+            });
+
+            doc.save("Reporte_Resultados_Totales_2027.pdf");
+        } catch (error) {
+            alert("Error al generar el PDF de totales: " + error.message);
+        }
+    }
+
+    inicializarModo();
+</script>
+
+</body>
+</html>
