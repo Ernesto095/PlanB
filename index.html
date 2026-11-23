@@ -89,7 +89,7 @@
 
         <h2>Lista Global de Candidatos Registrados</h2>
         <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.95rem;">
-            Si un hermano ya ganó en una ronda anterior, puedes presionar <strong>"Ocultar en votación"</strong> para que no aparezca en la siguiente ronda.
+            Si un hermano ya ganó en una ronda anterior, puedes presionar <strong>"Ocultar (Ya ganó)"</strong> para que no aparezca en la siguiente ronda.
         </p>
         <div class="admin-grid" id="admin-groups-container" style="margin-top: 15px;"></div>
     </div>
@@ -122,9 +122,9 @@
         <div id="offline-sync-banner" style="display: none; background: #fef3c7; border: 2px solid #f59e0b; padding: 18px; border-radius: 10px; margin-bottom: 25px;">
             <h3 style="color: #b45309; margin-bottom: 8px;">⚠️ Votos guardados sin internet en este dispositivo</h3>
             <p style="color: #78350f; margin-bottom: 15px; font-size: 0.95rem;">
-                Tienes <strong id="offline-count">0</strong> voto(s) guardado(s) localmente porque falló la conexión. Cuando tengas internet, presiona el botón para subirlos a la nube oficial.
+                Tienes <strong id="offline-count">0</strong> voto(s) guardado(s) localmente. Se subirán solos en cuanto regrese el internet, o puedes forzar la subida aquí:
             </p>
-            <button class="btn" style="background: #d97706; color: white; width: 100%;" onclick="sincronizarVotosLocales()">☁️ Sincronizar Votos Pendientes Ahora</button>
+            <button class="btn" style="background: #d97706; color: white; width: 100%;" onclick="sincronizarVotosLocales(false)">☁️ Sincronizar Votos Pendientes Ahora</button>
         </div>
         
         <div style="margin-bottom: 20px;">
@@ -173,6 +173,7 @@
     let rondaActiva = localStorage.getItem('ronda_activa_plan_b') || "Misionero General";
     let candidatoSeleccionadoRonda = null;
     let ordenActualRonda = [];
+    let sincronizandoEnCurso = false;
 
     const urlParams = new URLSearchParams(window.location.search);
     const esAdmin = urlParams.get('admin') === 'true';
@@ -228,7 +229,7 @@
         }
     }
 
-    // --- FUNCIONES DE RESPALDO LOCAL (LOCALSTORAGE) ---
+    // --- FUNCIONES DE RESPALDO LOCAL Y SINCRONIZACIÓN AUTOMÁTICA ---
     function obtenerVotosLocales() {
         return JSON.parse(localStorage.getItem('votos_offline_pendientes_plan_b')) || [];
     }
@@ -255,61 +256,85 @@
         }
     }
 
-    async function sincronizarVotosLocales() {
+    async function sincronizarVotosLocales(silencioso = false) {
+        if (sincronizandoEnCurso) return;
+
         const pendientes = obtenerVotosLocales();
         if (pendientes.length === 0) {
-            alert("No hay votos pendientes por sincronizar.");
+            if (!silencioso) alert("No hay votos pendientes por sincronizar.");
             return;
         }
 
         if (!navigator.onLine) {
-            alert("Sigues sin conexión a internet. Conéctate a una red Wi-Fi o datos móviles e intenta de nuevo.");
+            if (!silencioso) alert("Sigues sin conexión a internet. Conéctate a una red Wi-Fi o datos móviles e intenta de nuevo.");
             return;
         }
 
+        sincronizandoEnCurso = true;
         let subidos = 0;
         let duplicados = 0;
         let fallidos = [];
 
-        for (let voto of pendientes) {
-            try {
-                // Identificador único por DUI + Ronda (permite votar 1 vez por cada cargo)
-                const claveDuiRonda = `${voto.dui}_${voto.grupo}`;
-                const duiDoc = await db.collection("duis_ronda").doc(claveDuiRonda).get();
-                if (duiDoc.exists) {
-                    duplicados++;
-                    continue;
+        try {
+            for (let voto of pendientes) {
+                try {
+                    const claveDuiRonda = `${voto.dui}_${voto.grupo}`;
+                    const duiDoc = await db.collection("duis_ronda").doc(claveDuiRonda).get();
+                    if (duiDoc.exists) {
+                        duplicados++;
+                        continue;
+                    }
+
+                    const batch = db.batch();
+                    batch.set(db.collection("duis_ronda").doc(claveDuiRonda), { 
+                        dui: voto.dui,
+                        grupo: voto.grupo,
+                        registradoEl: firebase.firestore.FieldValue.serverTimestamp(),
+                        sincronizadoOffline: true 
+                    });
+                    
+                    const nuevoVotoRef = db.collection("votos_ronda").doc();
+                    batch.set(nuevoVotoRef, {
+                        dui: voto.dui,
+                        grupo: voto.grupo,
+                        candidatoId: voto.candidatoId,
+                        fecha: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    await batch.commit();
+                    subidos++;
+                } catch (error) {
+                    fallidos.push(voto);
                 }
-
-                const batch = db.batch();
-                batch.set(db.collection("duis_ronda").doc(claveDuiRonda), { 
-                    dui: voto.dui,
-                    grupo: voto.grupo,
-                    registradoEl: firebase.firestore.FieldValue.serverTimestamp(),
-                    sincronizadoOffline: true 
-                });
-                
-                const nuevoVotoRef = db.collection("votos_ronda").doc();
-                batch.set(nuevoVotoRef, {
-                    dui: voto.dui,
-                    grupo: voto.grupo,
-                    candidatoId: voto.candidatoId,
-                    fecha: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                await batch.commit();
-                subidos++;
-            } catch (error) {
-                fallidos.push(voto);
             }
+
+            localStorage.setItem('votos_offline_pendientes_plan_b', JSON.stringify(fallidos));
+            actualizarBannerOffline();
+
+            if (document.getElementById('sec-resultados').classList.contains('active') && (subidos > 0 || duplicados > 0)) {
+                renderizarResultados();
+            }
+
+            if (!silencioso) {
+                alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados por DUI repetido en la misma ronda: ${duplicados}\n❌ Pendientes por error: ${fallidos.length}`);
+            } else if (subidos > 0) {
+                console.log(`Sincronización automática: ${subidos} voto(s) subidos a Firebase.`);
+            }
+        } finally {
+            sincronizandoEnCurso = false;
         }
-
-        localStorage.setItem('votos_offline_pendientes_plan_b', JSON.stringify(fallidos));
-        actualizarBannerOffline();
-        renderizarResultados();
-
-        alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados por DUI repetido en la misma ronda: ${duplicados}\n❌ Pendientes por error: ${fallidos.length}`);
     }
+
+    // Dispara la sincronización automática apenas regrese el internet o cada 15 segundos
+    window.addEventListener('online', () => {
+        sincronizarVotosLocales(true);
+    });
+
+    setInterval(() => {
+        if (navigator.onLine && obtenerVotosLocales().length > 0) {
+            sincronizarVotosLocales(true);
+        }
+    }, 15000);
 
     async function precargarCandidatos() {
         if(confirm("¿Seguro que deseas cargar los 13 candidatos automáticamente? (Asegúrate de no haberlos agregado ya para evitar duplicados)")) {
@@ -336,6 +361,10 @@
     function inicializarModo() {
         const nav = document.getElementById('main-nav');
         actualizarBannerOffline();
+
+        if (navigator.onLine && obtenerVotosLocales().length > 0) {
+            sincronizarVotosLocales(true);
+        }
 
         if (candidatos.length === 0) {
             renderizarModuloVotacion();
@@ -547,7 +576,7 @@
         const viejos = [];
 
         listaCandidatos.forEach(c => {
-            if (c.oculto) return; // No muestra candidatos ocultos por haber ganado una ronda previa
+            if (c.oculto) return;
 
             const nombreCompleto = `${c.nombre} ${c.apellido}`
                 .toLowerCase()
@@ -665,7 +694,7 @@
 
         if (!navigator.onLine) {
             guardarVotoLocal(paqueteVoto);
-            limpiarFormularioTrasVoto(duiInput, btnVotar, '¡Voto guardado en modo SIN INTERNET (Respaldo Local)! Listo para el siguiente hermano.');
+            limpiarFormularioTrasVoto(duiInput, btnVotar, '¡Voto guardado en modo SIN INTERNET! Se subirá solo cuando vuelva la señal. Listo para el siguiente hermano.');
             return;
         }
 
@@ -675,7 +704,6 @@
             );
 
             const firebaseProcess = async () => {
-                // Llave compuesta: permite votar 1 vez por cada ronda distinta, pero bloquea el doble voto en la misma ronda
                 const claveDuiRonda = `${dui}_${rondaActiva}`;
                 const duiDoc = await db.collection("duis_ronda").doc(claveDuiRonda).get();
                 if (duiDoc.exists) {
@@ -711,7 +739,7 @@
                 btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
             } else {
                 guardarVotoLocal(paqueteVoto);
-                limpiarFormularioTrasVoto(duiInput, btnVotar, 'Conexión lenta o caída: ¡Tu voto se aseguró en el respaldo local del equipo! Listo para el siguiente hermano.');
+                limpiarFormularioTrasVoto(duiInput, btnVotar, 'Conexión lenta o caída: ¡Tu voto se guardó en el equipo y se subirá solo al volver la señal! Listo para el siguiente hermano.');
             }
         }
     }
@@ -822,7 +850,6 @@
             const dictCandidatos = {};
             candidatos.forEach(c => dictCandidatos[c.id] = `${c.nombre} ${c.apellido}`);
 
-            // Agrupar votos por DUI para mostrar cada hermano en una fila
             const votosPorDui = {};
             votosList.forEach(v => {
                 if (!votosPorDui[v.dui]) votosPorDui[v.dui] = {};
