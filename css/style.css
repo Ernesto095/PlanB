@@ -7,7 +7,7 @@
     --text-main: #0f172a;
     --text-muted: #475569;
     --border: #a7f3d0;
-    --success: #0284c7; /* Azul cielo intenso para marcar al seleccionado y contrastar con el verde */
+    --success: #0284c7;
     --danger: #dc2626;
 }
 
@@ -141,6 +141,7 @@ input[type="file"] {
     border-radius: 8px;
     font-size: 1.15rem;
     outline: none;
+    background: white;
 }
 
 input[type="text"]:focus, 
@@ -169,6 +170,31 @@ select:focus {
 .btn-danger { background: var(--danger); color: white; }
 .btn-edit { background: #d97706; color: white; }
 .cancel-btn { background: #64748b; color: white; display: none; margin-left: 10px; }
+
+/* Banner de Ronda Activa en Votación */
+.round-banner {
+    background: #d1fae5;
+    border: 2px solid #059669;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.round-banner-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #065f46;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.round-banner-title {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: #064e3b;
+    margin-top: 4px;
+}
 
 /* Contenedores de Candidatos y Votación */
 .group-title {
@@ -274,6 +300,12 @@ select:focus {
     box-shadow: none;
 }
 
+.admin-card.oculto-ronda {
+    opacity: 0.55;
+    background: #f8fafc;
+    border-style: dashed;
+}
+
 /* Tablas de Resultados */
 .results-table {
     width: 100%;
@@ -338,6 +370,10 @@ select:focus {
 
     #main-title {
         font-size: 1.45rem;
+    }
+
+    .round-banner-title {
+        font-size: 1.35rem;
     }
 
     .group-title {

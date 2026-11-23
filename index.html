@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elección de Junta Directiva 2027</title>
+    <title>Elección de Junta Directiva 2027 - Plan B</title>
     <!-- Enlace al archivo CSS externo -->
     <link rel="stylesheet" href="./css/style.css">
     
@@ -19,28 +19,33 @@
             <img src="img/logo.png (2).jpg" alt="Logo Iglesia" class="header-logo-img" onerror="this.style.display='none'">
         </div>
         <h1 id="main-title">Elección de Junta Directiva 2027</h1>
-        <p id="main-subtitle">Módulo de Votación Individual</p>
+        <p id="main-subtitle">Módulo de Votación por Rondas</p>
     </header>
 
     <nav id="main-nav" style="display: none;">
-        <button class="nav-btn active" onclick="switchTab('resultados', event)">1. Ver Resultados y Reporte</button>
+        <button class="nav-btn active" onclick="switchTab('resultados', event)">1. Control de Ronda y Resultados</button>
         <button class="nav-btn" onclick="switchTab('admin', event)">2. Configurar Candidatos</button>
         <button class="nav-btn" onclick="switchTab('votar', event)">3. Registro de Voto (Vista Previa)</button>
     </nav>
 
     <!-- SECCIÓN DE VOTACIÓN -->
     <div id="sec-votar" class="section active">
+        <div class="round-banner">
+            <div class="round-banner-label">Votación Actual Abierta Para:</div>
+            <div class="round-banner-title" id="voter-active-round-title">CARGANDO RONDA...</div>
+        </div>
+
         <h2>Ingreso del Hermano Votante</h2>
         <div class="form-group" style="margin-top: 15px;">
             <label for="dui">Número de DUI del Hermano(a):</label>
             <input type="text" id="dui" placeholder="00000000-0" maxlength="10" oninput="formatAndValidateDUI(this)" required>
         </div>
 
-        <hr style="margin: 25px 0; border: none; border-top: 1px solid #e2e8f0;">
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #d1fae5;">
 
-        <h2>Selección de Candidatos</h2>
+        <h2>Seleccione un Candidato</h2>
         <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 1.15rem;">
-            <strong>Nota:</strong> Toque la foto del candidato que desea elegir para cada cargo.
+            <strong>Nota:</strong> Toque la foto del candidato que desea elegir para este cargo y luego presione el botón verde de abajo.
         </p>
 
         <div id="voting-groups-container"></div>
@@ -52,10 +57,10 @@
     <div id="sec-admin" class="section">
         
         <!-- CAJA DE CARGA AUTOMÁTICA -->
-        <div style="background: #e0f2fe; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bae6fd;">
-            <h3 style="color: #0284c7; margin-bottom: 10px;">⚡ Carga Rápida de Candidatos</h3>
+        <div style="background: #d1fae5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #6ee7b7;">
+            <h3 style="color: #065f46; margin-bottom: 10px;">⚡ Carga Rápida de Candidatos</h3>
             <p style="margin-bottom: 15px; font-size: 0.95rem; color: #0f172a;">Presiona este botón <strong>una sola vez</strong> para cargar automáticamente a los 13 hermanos en el sistema con sus fotos predeterminadas.</p>
-            <button type="button" class="btn" style="background: #0284c7; color: white; width: 100%; font-size: 1.1rem;" onclick="precargarCandidatos()">📥 Cargar 13 Candidatos Automáticamente</button>
+            <button type="button" class="btn" style="background: #059669; color: white; width: 100%; font-size: 1.1rem;" onclick="precargarCandidatos()">📥 Cargar 13 Candidatos Automáticamente</button>
         </div>
 
         <h2 id="form-admin-title">Agregar Nuevo Candidato (Manual)</h2>
@@ -80,16 +85,38 @@
             <button type="button" id="btn-cancel-edit" class="btn cancel-btn" onclick="cancelarEdicion()">Cancelar Edición</button>
         </form>
 
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #d1fae5;">
 
         <h2>Lista Global de Candidatos Registrados</h2>
+        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.95rem;">
+            Si un hermano ya ganó en una ronda anterior, puedes presionar <strong>"Ocultar en votación"</strong> para que no aparezca en la siguiente ronda.
+        </p>
         <div class="admin-grid" id="admin-groups-container" style="margin-top: 15px;"></div>
     </div>
 
-    <!-- SECCIÓN DE RESULTADOS Y PDF -->
+    <!-- SECCIÓN DE RESULTADOS Y CONTROL DE RONDA -->
     <div id="sec-resultados" class="section">
+        
+        <!-- CONTROL DE RONDA ACTIVA EN TIEMPO REAL -->
+        <div style="background: #d1fae5; border: 2px solid #059669; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+            <h3 style="color: #064e3b; margin-bottom: 8px;">📢 Control de Ronda Activa (En Vivo)</h3>
+            <p style="color: #065f46; margin-bottom: 12px; font-size: 1rem;">
+                Selecciona el cargo que se está votando en este momento. Todas las pantallas cambiarán automáticamente a este cargo:
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <select id="select-ronda-activa" style="flex: 1; min-width: 240px; font-weight: 700; color: #064e3b;">
+                    <option value="Misionero General">Ronda 1: MISIONERO (PRESIDENTE)</option>
+                    <option value="Ministro">Ronda 2: MINISTRO</option>
+                    <option value="Diaconos">Ronda 3: DIÁCONOS</option>
+                    <option value="Secretario">Ronda 4: SECRETARIO</option>
+                    <option value="Tesorero">Ronda 5: TESORERO</option>
+                </select>
+                <button class="btn btn-primary" onclick="cambiarRondaActiva()">Activar Esta Ronda</button>
+            </div>
+        </div>
+
         <h2>Conteo Global y Reportes</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados en vivo y descarga de registros.</p>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados por ronda y descarga de registros.</p>
 
         <!-- PANEL DE RESCATE OFFLINE -->
         <div id="offline-sync-banner" style="display: none; background: #fef3c7; border: 2px solid #f59e0b; padding: 18px; border-radius: 10px; margin-bottom: 25px;">
@@ -109,7 +136,7 @@
         <!-- Botones de PDF al final -->
         <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 35px; padding-top: 20px; border-top: 1px solid var(--border); justify-content: flex-end;">
             <button class="btn btn-success" style="margin-top: 0; width: auto; padding: 14px 22px; font-size: 1rem;" onclick="descargarPDF()">📄 Descargar Detalle por DUI</button>
-            <button class="btn btn-success" style="margin-top: 0; width: auto; padding: 14px 22px; font-size: 1rem; background: #047857;" onclick="descargarPDFTotales()">🏆 Descargar PDF de Totales</button>
+            <button class="btn btn-success" style="margin-top: 0; width: auto; padding: 14px 22px; font-size: 1rem; background: #064e3b;" onclick="descargarPDFTotales()">🏆 Descargar PDF de Totales</button>
         </div>
     </div>
 </div>
@@ -143,8 +170,9 @@
 
     let base64TempImage = "";
     let candidatos = JSON.parse(localStorage.getItem('candidatos_cache_plan_b')) || [];
-    let seleccionesActuales = {};
-    let ordenPorGrupo = {};
+    let rondaActiva = localStorage.getItem('ronda_activa_plan_b') || "Misionero General";
+    let candidatoSeleccionadoRonda = null;
+    let ordenActualRonda = [];
 
     const urlParams = new URLSearchParams(window.location.search);
     const esAdmin = urlParams.get('admin') === 'true';
@@ -164,6 +192,41 @@
         { nombre: "Roger", apellido: "Rivas", foto: "img/12.jpeg" },
         { nombre: "Rafael", apellido: "Aguirre", foto: "img/13.jpeg" }
     ];
+
+    // --- ESCUCHAR EN TIEMPO REAL QUÉ RONDA ESTÁ ACTIVA ---
+    db.collection("config").doc("estado").onSnapshot(
+        doc => {
+            if (doc.exists && doc.data().rondaActiva) {
+                rondaActiva = doc.data().rondaActiva;
+                localStorage.setItem('ronda_activa_plan_b', rondaActiva);
+            }
+            const selector = document.getElementById('select-ronda-activa');
+            if (selector) selector.value = rondaActiva;
+
+            if (document.getElementById('sec-votar').classList.contains('active')) {
+                renderizarModuloVotacion();
+            }
+        },
+        error => {
+            console.warn("Usando ronda guardada localmente:", rondaActiva);
+        }
+    );
+
+    async function cambiarRondaActiva() {
+        const selector = document.getElementById('select-ronda-activa');
+        const nuevaRonda = selector.value;
+        try {
+            await db.collection("config").doc("estado").set({
+                rondaActiva: nuevaRonda,
+                actualizado: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            rondaActiva = nuevaRonda;
+            localStorage.setItem('ronda_activa_plan_b', rondaActiva);
+            alert(`¡Listo! Todas las pantallas están votando ahora por: ${NOMBRES_MOSTRAR[nuevaRonda]}`);
+        } catch (error) {
+            alert("Error al cambiar de ronda: " + error.message);
+        }
+    }
 
     // --- FUNCIONES DE RESPALDO LOCAL (LOCALSTORAGE) ---
     function obtenerVotosLocales() {
@@ -210,22 +273,27 @@
 
         for (let voto of pendientes) {
             try {
-                const duiDoc = await db.collection("duis").doc(voto.dui).get();
+                // Identificador único por DUI + Ronda (permite votar 1 vez por cada cargo)
+                const claveDuiRonda = `${voto.dui}_${voto.grupo}`;
+                const duiDoc = await db.collection("duis_ronda").doc(claveDuiRonda).get();
                 if (duiDoc.exists) {
                     duplicados++;
                     continue;
                 }
 
                 const batch = db.batch();
-                batch.set(db.collection("duis").doc(voto.dui), { 
+                batch.set(db.collection("duis_ronda").doc(claveDuiRonda), { 
+                    dui: voto.dui,
+                    grupo: voto.grupo,
                     registradoEl: firebase.firestore.FieldValue.serverTimestamp(),
                     sincronizadoOffline: true 
                 });
                 
-                const nuevoVotoRef = db.collection("votos").doc();
+                const nuevoVotoRef = db.collection("votos_ronda").doc();
                 batch.set(nuevoVotoRef, {
                     dui: voto.dui,
-                    votos: voto.votos,
+                    grupo: voto.grupo,
+                    candidatoId: voto.candidatoId,
                     fecha: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -240,7 +308,7 @@
         actualizarBannerOffline();
         renderizarResultados();
 
-        alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados por DUI repetido: ${duplicados}\n❌ Pendientes por error: ${fallidos.length}`);
+        alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados por DUI repetido en la misma ronda: ${duplicados}\n❌ Pendientes por error: ${fallidos.length}`);
     }
 
     async function precargarCandidatos() {
@@ -253,6 +321,7 @@
                         nombre: c.nombre,
                         apellido: c.apellido,
                         foto: c.foto,
+                        oculto: false,
                         creado: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 });
@@ -274,7 +343,7 @@
 
         if (esAdmin) {
             nav.style.display = 'flex';
-            document.getElementById('main-subtitle').innerText = "Panel Principal de Control y Conteo";
+            document.getElementById('main-subtitle').innerText = "Panel de Control por Rondas y Conteo";
             switchTab('resultados');
         } else {
             nav.style.display = 'none';
@@ -368,6 +437,7 @@
                     nombre,
                     apellido,
                     foto,
+                    oculto: false,
                     creado: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 alert('Candidato agregado correctamente.');
@@ -400,13 +470,23 @@
         document.getElementById('cand-file').value = "";
         base64TempImage = "";
 
-        document.getElementById('form-admin-title').innerText = "Agregar Nuevo Candidato al Padrón";
+        document.getElementById('form-admin-title').innerText = "Agregar Nuevo Candidato (Manual)";
         document.getElementById('btn-submit-candidato').innerText = "Agregar Candidato";
         document.getElementById('btn-cancel-edit').style.display = "none";
     }
 
+    async function alternarVisibilidadCandidato(id, estadoActualOculto) {
+        try {
+            await db.collection("candidatos").doc(id).update({
+                oculto: !estadoActualOculto
+            });
+        } catch (error) {
+            alert("Error al cambiar visibilidad: " + error.message);
+        }
+    }
+
     async function eliminarCandidato(id) {
-        if(confirm('¿Está seguro de eliminar este candidato? Desaparecerá de todos los cargos.')) {
+        if(confirm('¿Está seguro de eliminar este candidato?')) {
             try {
                 await db.collection("candidatos").doc(id).delete();
             } catch (error) {
@@ -420,17 +500,22 @@
         container.innerHTML = "";
 
         if(candidatos.length === 0) {
-            container.innerHTML = `<p style="color: var(--text-muted); font-style: italic; width: 100%;">Aún no hay candidatos. Puedes agregarlos usando el botón azul de arriba.</p>`;
+            container.innerHTML = `<p style="color: var(--text-muted); font-style: italic; width: 100%;">Aún no hay candidatos. Puedes agregarlos usando el botón verde de arriba.</p>`;
             return;
         }
 
         candidatos.forEach(c => {
+            const estaOculto = Boolean(c.oculto);
+            const textoBotonOcultar = estaOculto ? "👁️ Mostrar en votación" : "🚫 Ocultar (Ya ganó)";
+            const colorBotonOcultar = estaOculto ? "background: #0284c7; color: white;" : "background: #64748b; color: white;";
+
             container.innerHTML += `
-                <div class="candidate-card admin-card">
+                <div class="candidate-card admin-card ${estaOculto ? 'oculto-ronda' : ''}">
                     <img src="${c.foto}" class="candidate-img" alt="Foto">
                     <div class="candidate-name" style="margin-bottom: 10px;">${c.nombre} ${c.apellido}</div>
-                    <button class="btn btn-edit" style="width: 100%; margin-bottom: 5px; font-size: 0.9rem; padding: 8px;" onclick="editarCandidato('${c.id}')">Editar</button>
-                    <button class="btn btn-danger" style="width: 100%; font-size: 0.9rem; padding: 8px;" onclick="eliminarCandidato('${c.id}')">Eliminar</button>
+                    <button class="btn" style="width: 100%; margin-bottom: 5px; font-size: 0.85rem; padding: 8px; ${colorBotonOcultar}" onclick="alternarVisibilidadCandidato('${c.id}', ${estaOculto})">${textoBotonOcultar}</button>
+                    <button class="btn btn-edit" style="width: 100%; margin-bottom: 5px; font-size: 0.85rem; padding: 8px;" onclick="editarCandidato('${c.id}')">Editar</button>
+                    <button class="btn btn-danger" style="width: 100%; font-size: 0.85rem; padding: 8px;" onclick="eliminarCandidato('${c.id}')">Eliminar</button>
                 </div>
             `;
         });
@@ -446,7 +531,7 @@
         return copia;
     }
 
-    // Función que intercala en desorden: 2 nuevos, 1 viejo, 1 nuevo, 2 viejos, etc.
+    // Intercalado aleatorio: 2 nuevos, 1 viejo, 1 nuevo, 2 viejos, etc.
     function generarOrdenGrupo(listaCandidatos) {
         const viejosNombres = [
             "luis cortez",
@@ -462,6 +547,8 @@
         const viejos = [];
 
         listaCandidatos.forEach(c => {
+            if (c.oculto) return; // No muestra candidatos ocultos por haber ganado una ronda previa
+
             const nombreCompleto = `${c.nombre} ${c.apellido}`
                 .toLowerCase()
                 .normalize("NFD")
@@ -506,48 +593,42 @@
 
     function renderizarModuloVotacion() {
         const container = document.getElementById('voting-groups-container');
-        container.innerHTML = "";
-        seleccionesActuales = {};
-        ordenPorGrupo = {};
+        const roundTitleEl = document.getElementById('voter-active-round-title');
+        const tituloMostrar = NOMBRES_MOSTRAR[rondaActiva] || rondaActiva;
 
-        GRUPOS.forEach(grupo => {
-            const prefix = grupo.replace(/\s+/g, '');
-            const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
-            
-            ordenPorGrupo[grupo] = generarOrdenGrupo(candidatos);
-            
-            let html = `<div class="group-title">${tituloMostrar}</div>`;
-            
-            if(candidatos.length === 0) {
-                html += `<p style="color: var(--text-muted); font-style: italic;">Aún no hay candidatos en el sistema. El administrador debe agregarlos primero.</p>`;
-            } else {
-                html += `<div class="candidates-grid" id="grid-${prefix}">`;
-                ordenPorGrupo[grupo].forEach(c => {
-                    html += `
-                        <div class="candidate-card" id="card-${prefix}-${c.id}" onclick="seleccionarCandidato('${grupo}', '${c.id}')">
-                            <img src="${c.foto}" class="candidate-img" alt="Foto">
-                            <div class="candidate-name">${c.nombre}<br>${c.apellido}</div>
-                        </div>
-                    `;
-                });
-                html += `</div>`;
-            }
-            container.innerHTML += html;
+        if (roundTitleEl) roundTitleEl.innerText = tituloMostrar;
+
+        container.innerHTML = "";
+        candidatoSeleccionadoRonda = null;
+        ordenActualRonda = generarOrdenGrupo(candidatos);
+
+        if(ordenActualRonda.length === 0) {
+            container.innerHTML = `<p style="color: var(--text-muted); font-style: italic;">Aún no hay candidatos disponibles en esta ronda.</p>`;
+            return;
+        }
+
+        let html = `<div class="candidates-grid">`;
+        ordenActualRonda.forEach(c => {
+            html += `
+                <div class="candidate-card" id="card-${c.id}" onclick="seleccionarCandidato('${c.id}')">
+                    <img src="${c.foto}" class="candidate-img" alt="Foto">
+                    <div class="candidate-name">${c.nombre}<br>${c.apellido}</div>
+                </div>
+            `;
         });
+        html += `</div>`;
+        container.innerHTML = html;
     }
 
-    // Selección libre por cargo: NO bloquea al candidato en los demás grupos
-    function seleccionarCandidato(grupo, candId) {
-        const prefix = grupo.replace(/\s+/g, '');
-        const cardActual = document.getElementById(`card-${prefix}-${candId}`);
-
-        candidatos.forEach(c => {
-            const el = document.getElementById(`card-${prefix}-${c.id}`);
+    function seleccionarCandidato(candId) {
+        ordenActualRonda.forEach(c => {
+            const el = document.getElementById(`card-${c.id}`);
             if(el) el.classList.remove('selected');
         });
 
-        cardActual.classList.add('selected');
-        seleccionesActuales[grupo] = candId;
+        const cardActual = document.getElementById(`card-${candId}`);
+        if(cardActual) cardActual.classList.add('selected');
+        candidatoSeleccionadoRonda = candId;
     }
 
     async function registrarVoto() {
@@ -560,17 +641,15 @@
             return;
         }
 
-        for (let grupo of GRUPOS) {
-            if (candidatos.length > 0 && !seleccionesActuales[grupo]) {
-                const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
-                alert(`Falta seleccionar un candidato para el cargo: ${tituloMostrar}`);
-                return;
-            }
+        if (ordenActualRonda.length > 0 && !candidatoSeleccionadoRonda) {
+            const tituloMostrar = NOMBRES_MOSTRAR[rondaActiva] || rondaActiva;
+            alert(`Por favor seleccione un candidato para el cargo de: ${tituloMostrar}`);
+            return;
         }
 
         const pendientes = obtenerVotosLocales();
-        if (pendientes.some(v => v.dui === dui)) {
-            alert('¡ERROR! Este DUI ya emitió su voto en este dispositivo. No se permite votar dos veces.');
+        if (pendientes.some(v => v.dui === dui && v.grupo === rondaActiva)) {
+            alert('¡ERROR! Este DUI ya emitió su voto en esta ronda en este dispositivo.');
             return;
         }
 
@@ -579,7 +658,8 @@
 
         const paqueteVoto = {
             dui,
-            votos: { ...seleccionesActuales },
+            grupo: rondaActiva,
+            candidatoId: candidatoSeleccionadoRonda,
             fechaLocal: new Date().toISOString()
         };
 
@@ -595,18 +675,25 @@
             );
 
             const firebaseProcess = async () => {
-                const duiDoc = await db.collection("duis").doc(dui).get();
+                // Llave compuesta: permite votar 1 vez por cada ronda distinta, pero bloquea el doble voto en la misma ronda
+                const claveDuiRonda = `${dui}_${rondaActiva}`;
+                const duiDoc = await db.collection("duis_ronda").doc(claveDuiRonda).get();
                 if (duiDoc.exists) {
-                    throw new Error("DUI_DUPLICADO");
+                    throw new Error("DUI_DUPLICADO_RONDA");
                 }
 
                 const batch = db.batch();
-                batch.set(db.collection("duis").doc(dui), { registradoEl: firebase.firestore.FieldValue.serverTimestamp() });
+                batch.set(db.collection("duis_ronda").doc(claveDuiRonda), { 
+                    dui,
+                    grupo: rondaActiva,
+                    registradoEl: firebase.firestore.FieldValue.serverTimestamp() 
+                });
                 
-                const nuevoVotoRef = db.collection("votos").doc();
+                const nuevoVotoRef = db.collection("votos_ronda").doc();
                 batch.set(nuevoVotoRef, {
                     dui,
-                    votos: { ...seleccionesActuales },
+                    grupo: rondaActiva,
+                    candidatoId: candidatoSeleccionadoRonda,
                     fecha: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -615,11 +702,11 @@
 
             await Promise.race([firebaseProcess(), timeoutPromise]);
 
-            limpiarFormularioTrasVoto(duiInput, btnVotar, '¡Voto registrado con éxito! Sistema limpio y listo para el siguiente hermano.');
+            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto para ${NOMBRES_MOSTRAR[rondaActiva]} registrado con éxito! Listo para el siguiente hermano.`);
 
         } catch (error) {
-            if (error.message === "DUI_DUPLICADO") {
-                alert('¡ERROR! Este DUI ya emitió su voto. No se permite votar dos veces.');
+            if (error.message === "DUI_DUPLICADO_RONDA") {
+                alert(`¡ERROR! Este DUI ya votó en la ronda de ${NOMBRES_MOSTRAR[rondaActiva]}. No se permite votar dos veces en la misma ronda.`);
                 btnVotar.disabled = false;
                 btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
             } else {
@@ -642,7 +729,7 @@
         let votosNube = [];
         try {
             if (navigator.onLine) {
-                const snapshot = await db.collection("votos").get();
+                const snapshot = await db.collection("votos_ronda").get();
                 votosNube = snapshot.docs.map(doc => doc.data());
             }
         } catch (e) {
@@ -659,20 +746,28 @@
 
         try {
             const votosGuardados = await obtenerTodosLosVotosCombinados();
-            container.innerHTML = "";
+            const hermanosUnicos = new Set(votosGuardados.map(v => v.dui)).size;
+
+            container.innerHTML = `
+                <div style="background: #f0fdf4; border: 1px solid #a7f3d0; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 30px; flex-wrap: wrap;">
+                    <div><strong style="color: #064e3b;">👥 Hermanos únicos que han participado:</strong> <span style="font-size: 1.25rem; font-weight: 800; color: #059669;">${hermanosUnicos}</span></div>
+                    <div><strong style="color: #064e3b;">🗳️ Total de votos emitidos (todas las rondas):</strong> <span style="font-size: 1.25rem; font-weight: 800; color: #059669;">${votosGuardados.length}</span></div>
+                </div>
+            `;
 
             GRUPOS.forEach(grupo => {
                 const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
+                const votosDeEstaRonda = votosGuardados.filter(v => v.grupo === grupo);
                 
                 let conteo = candidatos.map(c => {
-                    const totalVotos = votosGuardados.filter(v => v.votos && v.votos[grupo] === c.id).length;
+                    const totalVotos = votosDeEstaRonda.filter(v => v.candidatoId === c.id).length;
                     return { ...c, votos: totalVotos };
                 });
 
                 conteo.sort((a, b) => b.votos - a.votos);
                 let maxVotos = conteo.length > 0 ? conteo[0].votos : 0;
 
-                let html = `<div class="group-title">${tituloMostrar}</div>`;
+                let html = `<div class="group-title">${tituloMostrar} <span style="font-size: 0.9rem; font-weight: 600;">(${votosDeEstaRonda.length} votos registrados)</span></div>`;
                 
                 if(candidatos.length === 0) {
                     html += `<p style="color: var(--text-muted); font-style: italic;">No hay candidatos registrados.</p>`;
@@ -689,10 +784,10 @@
                     `;
                     conteo.forEach(c => {
                         let esGanador = (c.votos === maxVotos && maxVotos > 0);
-                        let filaEstilo = esGanador ? 'background-color: #ecfdf5; border-left: 4px solid var(--success);' : '';
+                        let filaEstilo = esGanador ? 'background-color: #d1fae5; border-left: 4px solid #059669;' : '';
                         let trofeo = esGanador ? ' 🏆 (GANADOR)' : '';
-                        let colorTexto = esGanador ? 'color: var(--success);' : 'color: var(--text-main);';
-                        let colorBadge = esGanador ? 'background: var(--success);' : '';
+                        let colorTexto = esGanador ? 'color: #065f46;' : 'color: var(--text-main);';
+                        let colorBadge = esGanador ? 'background: #059669;' : '';
 
                         if (c.votos > 0 || esAdmin) {
                             html += `
@@ -717,7 +812,7 @@
         const doc = new jsPDF('landscape'); 
 
         doc.setFontSize(14);
-        doc.text("Reporte Detallado de Votaciones - Elección Junta Directiva 2027", 14, 15);
+        doc.text("Reporte Detallado por DUI y Ronda - Elección Junta Directiva 2027", 14, 15);
         doc.setFontSize(10);
         doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 22);
 
@@ -727,31 +822,42 @@
             const dictCandidatos = {};
             candidatos.forEach(c => dictCandidatos[c.id] = `${c.nombre} ${c.apellido}`);
 
+            // Agrupar votos por DUI para mostrar cada hermano en una fila
+            const votosPorDui = {};
+            votosList.forEach(v => {
+                if (!votosPorDui[v.dui]) votosPorDui[v.dui] = {};
+                votosPorDui[v.dui][v.grupo] = dictCandidatos[v.candidatoId] || "Desconocido";
+            });
+
+            const duisUnicos = Object.keys(votosPorDui);
+            doc.setFontSize(11);
+            doc.text(`Total de hermanos participantes (DUIs únicos): ${duisUnicos.length}`, 14, 29);
+
             const tableColumn = ["DUI del Votante", "Misionero (Presidente)", "Ministro", "Diáconos", "Secretario", "Tesorero"];
             const tableRows = [];
 
-            votosList.forEach(voto => {
-                const row = [
-                    voto.dui,
-                    dictCandidatos[voto.votos["Misionero General"]] || "Ninguno",
-                    dictCandidatos[voto.votos["Ministro"]] || "Ninguno",
-                    dictCandidatos[voto.votos["Diaconos"]] || "Ninguno",
-                    dictCandidatos[voto.votos["Secretario"]] || "Ninguno",
-                    dictCandidatos[voto.votos["Tesorero"]] || "Ninguno"
-                ];
-                tableRows.push(row);
+            duisUnicos.forEach(dui => {
+                const registro = votosPorDui[dui];
+                tableRows.push([
+                    dui,
+                    registro["Misionero General"] || "-",
+                    registro["Ministro"] || "-",
+                    registro["Diaconos"] || "-",
+                    registro["Secretario"] || "-",
+                    registro["Tesorero"] || "-"
+                ]);
             });
 
             doc.autoTable({
                 head: [tableColumn],
                 body: tableRows,
-                startY: 30,
+                startY: 35,
                 styles: { fontSize: 9, cellPadding: 3 },
-                headStyles: { fillColor: [30, 64, 175], textColor: [255, 255, 255] },
-                alternateRowStyles: { fillColor: [241, 245, 249] }
+                headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255] },
+                alternateRowStyles: { fillColor: [240, 253, 244] }
             });
 
-            doc.save("Reporte_Votos_Detallado_2027.pdf");
+            doc.save("Reporte_Votos_Detallado_PlanB_2027.pdf");
         } catch (error) {
             alert("Error al generar el PDF: " + error.message);
         }
@@ -762,24 +868,26 @@
         const doc = new jsPDF('portrait'); 
 
         doc.setFontSize(16);
-        doc.text("Resultados Oficiales - Elección Junta Directiva 2027", 14, 15);
+        doc.text("Resultados Oficiales por Ronda - Elección Junta Directiva 2027", 14, 15);
         doc.setFontSize(10);
         doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 22);
 
         try {
             const votosList = await obtenerTodosLosVotosCombinados();
-            const totalVotantes = votosList.length;
+            const hermanosUnicos = new Set(votosList.map(v => v.dui)).size;
 
             doc.setFontSize(12);
-            doc.text(`Total general de hermanos que votaron: ${totalVotantes}`, 14, 32);
+            doc.text(`Total de hermanos que participaron (DUIs únicos): ${hermanosUnicos}`, 14, 30);
+            doc.text(`Total de votos emitidos entre todas las rondas: ${votosList.length}`, 14, 37);
 
-            let startY = 45;
+            let startY = 48;
 
             GRUPOS.forEach(grupo => {
                 const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
+                const votosDeEstaRonda = votosList.filter(v => v.grupo === grupo);
                 
                 let conteo = candidatos.map(c => {
-                    const totalVotos = votosList.filter(v => v.votos && v.votos[grupo] === c.id).length;
+                    const totalVotos = votosDeEstaRonda.filter(v => v.candidatoId === c.id).length;
                     return { nombre: `${c.nombre} ${c.apellido}`, votos: totalVotos };
                 });
 
@@ -798,15 +906,15 @@
                 });
 
                 doc.setFontSize(12);
-                doc.text(`Resultados para el cargo de: ${tituloMostrar}`, 14, startY);
+                doc.text(`Resultados para: ${tituloMostrar} (Votos en esta ronda: ${votosDeEstaRonda.length})`, 14, startY);
                 
                 doc.autoTable({
                     head: [tableColumn],
                     body: tableRows,
                     startY: startY + 5,
                     styles: { fontSize: 10, cellPadding: 3 },
-                    headStyles: { fillColor: [4, 120, 87], textColor: [255, 255, 255] }, 
-                    alternateRowStyles: { fillColor: [241, 245, 249] }
+                    headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255] }, 
+                    alternateRowStyles: { fillColor: [240, 253, 244] }
                 });
 
                 startY = doc.lastAutoTable.finalY + 15;
@@ -817,7 +925,7 @@
                 }
             });
 
-            doc.save("Reporte_Resultados_Totales_2027.pdf");
+            doc.save("Reporte_Resultados_Totales_PlanB_2027.pdf");
         } catch (error) {
             alert("Error al generar el PDF de totales: " + error.message);
         }
