@@ -171,7 +171,54 @@ select:focus {
 .btn-edit { background: #d97706; color: white; }
 .cancel-btn { background: #64748b; color: white; display: none; margin-left: 10px; }
 
-/* Banner de Ronda Activa en Votación */
+/* Sección de los 6 Botones de PDF */
+.pdf-actions-wrapper {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 2px solid var(--border);
+}
+
+.pdf-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.btn-pdf-cargo {
+    background: #047857;
+    color: white;
+    font-size: 0.98rem;
+    padding: 14px 16px;
+    text-align: left;
+}
+
+.btn-pdf-cargo:hover {
+    background: #065f46;
+}
+
+.btn-pdf-general {
+    background: #0284c7;
+    color: white;
+    font-size: 1rem;
+    padding: 15px 18px;
+}
+
+.btn-pdf-general:hover {
+    background: #0369a1;
+}
+
+.btn-pdf-totales {
+    background: #064e3b;
+    color: white;
+    font-size: 1rem;
+    padding: 15px 18px;
+}
+
+.btn-pdf-totales:hover {
+    background: #022c22;
+}
+
+/* Banner de Votación Activa */
 .round-banner {
     background: #d1fae5;
     border: 2px solid #059669;
@@ -379,6 +426,10 @@ select:focus {
     .group-title {
         font-size: 1.15rem;
         padding: 10px 12px;
+    }
+
+    .pdf-buttons-grid {
+        grid-template-columns: 1fr;
     }
 
     /* En celular: 2 tarjetas por fila para ver todos los candidatos rápido */
