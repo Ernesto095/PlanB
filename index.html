@@ -171,7 +171,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Orden oficial de las 4 votaciones (clave interna sin "/" para compatibilidad con Firestore)
+    const PRIMERA_VOTACION = "Misionero General";
     const GRUPOS = ["Misionero General", "Ministro", "Secretario_Tesorero", "Diaconos"];
 
     const NOMBRES_MOSTRAR = {
@@ -302,16 +302,26 @@
 
         sincronizandoEnCurso = true;
         let subidos = 0;
-        let duplicados = 0;
+        let rechazados = 0;
         let fallidos = [];
 
         try {
             for (let voto of pendientes) {
                 try {
+                    // Verificar que haya participado en la Primera Votación antes de subir rondas posteriores
+                    if (voto.grupo !== PRIMERA_VOTACION) {
+                        const clavePrimera = `${voto.dui}_${PRIMERA_VOTACION}`;
+                        const primeraDoc = await db.collection("duis_ronda").doc(clavePrimera).get();
+                        if (!primeraDoc.exists) {
+                            rechazados++;
+                            continue;
+                        }
+                    }
+
                     const claveDuiRonda = `${voto.dui}_${voto.grupo}`;
                     const duiDoc = await db.collection("duis_ronda").doc(claveDuiRonda).get();
                     if (duiDoc.exists) {
-                        duplicados++;
+                        rechazados++;
                         continue;
                     }
 
@@ -341,12 +351,12 @@
             localStorage.setItem('votos_offline_pendientes_plan_b', JSON.stringify(fallidos));
             actualizarBannerOffline();
 
-            if (document.getElementById('sec-resultados').classList.contains('active') && (subidos > 0 || duplicados > 0)) {
+            if (document.getElementById('sec-resultados').classList.contains('active') && (subidos > 0 || rechazados > 0)) {
                 renderizarResultados();
             }
 
             if (!silencioso) {
-                alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados por DUI repetido en la misma votación: ${duplicados}\n❌ Pendientes por error: ${fallidos.length}`);
+                alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados (DUI duplicado o sin Primera Votación): ${rechazados}\n❌ Pendientes por error: ${fallidos.length}`);
             } else if (subidos > 0) {
                 console.log(`Sincronización automática: ${subidos} voto(s) subidos a Firebase.`);
             }
@@ -355,7 +365,6 @@
         }
     }
 
-    // Dispara la sincronización automática apenas regrese el internet o cada 15 segundos
     window.addEventListener('online', () => {
         sincronizarVotosLocales(true);
     });
@@ -427,7 +436,6 @@
         }
     );
 
-    // Escucha en vivo de nuevos votos para que el Admin vea el conteo actualizarse solo
     if (esAdmin) {
         db.collection("votos_ronda").onSnapshot(() => {
             if (document.getElementById('sec-resultados').classList.contains('active')) {
@@ -589,7 +597,6 @@
         });
     }
 
-    // Mezclar orden de candidatos (Algoritmo Fisher-Yates)
     function mezclarArray(array) {
         let copia = [...array];
         for (let i = copia.length - 1; i > 0; i--) {
@@ -599,7 +606,6 @@
         return copia;
     }
 
-    // Intercalado aleatorio: 2 nuevos, 1 viejo, 1 nuevo, 2 viejos, etc.
     function generarOrdenGrupo(listaCandidatos) {
         const viejosNombres = [
             "luis cortez",
@@ -724,9 +730,6 @@
             return;
         }
 
-        btnVotar.disabled = true;
-        btnVotar.innerText = "REGISTRANDO VOTO...";
-
         const paqueteVoto = {
             dui,
             grupo: rondaActiva,
@@ -734,11 +737,22 @@
             fechaLocal: new Date().toISOString()
         };
 
+        // Si estamos sin internet, validar contra votos locales pendientes si es ronda 2, 3 o 4
         if (!navigator.onLine) {
+            if (rondaActiva !== PRIMERA_VOTACION) {
+                const votoPrimeraLocal = pendientes.some(v => v.dui === dui && v.grupo === PRIMERA_VOTACION);
+                if (!votoPrimeraLocal) {
+                    alert(`¡ACCESO DENEGADO!\n\nEste DUI (${dui}) no participó en la Primera Votación (${NOMBRES_MOSTRAR[PRIMERA_VOTACION]}), por lo tanto no puede votar en las siguientes votaciones.`);
+                    return;
+                }
+            }
             guardarVotoLocal(paqueteVoto);
             limpiarFormularioTrasVoto(duiInput, btnVotar, '¡Voto guardado en modo SIN INTERNET! Se subirá solo cuando vuelva la señal. Listo para el siguiente hermano.');
             return;
         }
+
+        btnVotar.disabled = true;
+        btnVotar.innerText = "VERIFICANDO Y REGISTRANDO VOTO...";
 
         try {
             const timeoutPromise = new Promise((_, reject) => 
@@ -746,12 +760,26 @@
             );
 
             const firebaseProcess = async () => {
+                // 1. Verificar que el DUI haya votado en la Primera Votación (si estamos en la 2.ª, 3.ª o 4.ª)
+                if (rondaActiva !== PRIMERA_VOTACION) {
+                    const votoPrimeraLocal = pendientes.some(v => v.dui === dui && v.grupo === PRIMERA_VOTACION);
+                    if (!votoPrimeraLocal) {
+                        const clavePrimera = `${dui}_${PRIMERA_VOTACION}`;
+                        const primeraDoc = await db.collection("duis_ronda").doc(clavePrimera).get();
+                        if (!primeraDoc.exists) {
+                            throw new Error("SIN_PRIMERA_VOTACION");
+                        }
+                    }
+                }
+
+                // 2. Verificar que el DUI no haya votado ya en la votación actual
                 const claveDuiRonda = `${dui}_${rondaActiva}`;
                 const duiDoc = await db.collection("duis_ronda").doc(claveDuiRonda).get();
                 if (duiDoc.exists) {
                     throw new Error("DUI_DUPLICADO_RONDA");
                 }
 
+                // 3. Registrar el voto
                 const batch = db.batch();
                 batch.set(db.collection("duis_ronda").doc(claveDuiRonda), { 
                     dui,
@@ -775,7 +803,11 @@
             limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto para ${NOMBRES_MOSTRAR[rondaActiva]} registrado con éxito! Listo para el siguiente hermano.`);
 
         } catch (error) {
-            if (error.message === "DUI_DUPLICADO_RONDA") {
+            if (error.message === "SIN_PRIMERA_VOTACION") {
+                alert(`¡ACCESO DENEGADO!\n\nEste DUI (${dui}) no se registró en la Primera Votación (${NOMBRES_MOSTRAR[PRIMERA_VOTACION]}), por lo que ya no puede participar en las siguientes votaciones.`);
+                btnVotar.disabled = false;
+                btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
+            } else if (error.message === "DUI_DUPLICADO_RONDA") {
                 alert(`¡ERROR! Este DUI ya votó en ${ETIQUETAS_VOTACION[rondaActiva]} (${NOMBRES_MOSTRAR[rondaActiva]}). No se permite votar dos veces en la misma votación.`);
                 btnVotar.disabled = false;
                 btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
@@ -809,7 +841,6 @@
         return [...votosNube, ...votosLocales];
     }
 
-    // Calcula el conteo y determina ganadores según la cantidad de cupos del cargo (1, 2, 2 o 3)
     function calcularConteoConGanadores(votosList, grupo) {
         const votosDeEstaVotacion = votosList.filter(v => v.grupo === grupo);
         const cupos = GANADORES_POR_GRUPO[grupo] || 1;
@@ -895,7 +926,6 @@
         }
     }
 
-    // --- BOTONES 1 AL 4: PDF INDIVIDUAL POR CARGO ---
     async function descargarPDFPorCargo(grupo) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait');
@@ -918,7 +948,6 @@
             doc.setFontSize(11);
             doc.text(`Total de votos emitidos en esta votación: ${votosDeEstaVotacion.length}  |  Plazas a elegir: ${textoCupos}`, 14, 37);
 
-            // Tabla 1: Conteo de votos y ganadores
             const colsConteo = ["Pos.", "Candidato", "Total de Votos", "Resultado"];
             const rowsConteo = conteo.map((c, index) => [
                 (index + 1).toString(),
@@ -936,7 +965,6 @@
                 alternateRowStyles: { fillColor: [240, 253, 244] }
             });
 
-            // Tabla 2: Detalle por DUI de esta votación
             const dictCandidatos = {};
             candidatos.forEach(c => dictCandidatos[c.id] = `${c.nombre} ${c.apellido}`);
 
@@ -972,7 +1000,6 @@
         }
     }
 
-    // --- BOTÓN 5: PDF DETALLE GENERAL POR DUI ---
     async function descargarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape'); 
@@ -1033,7 +1060,6 @@
         }
     }
 
-    // --- BOTÓN 6: PDF DE TOTALES GENERALES ---
     async function descargarPDFTotales() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait'); 
