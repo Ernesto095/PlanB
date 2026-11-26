@@ -27,32 +27,39 @@
         <button class="nav-btn" onclick="switchTab('votar', event)">3. Registro de Voto (Vista Previa)</button>
     </nav>
 
-    <!-- SECCIÓN DE VOTACIÓN (ENCARGADOS DE COMPUTADORA) -->
-    <div id="sec-votar" class="section active">
-        
-        <!-- BARRA DE IDENTIFICACIÓN DE COMPUTADORA Y BOTÓN DE RESUMEN LOCAL -->
-        <div style="background: #f0fdf4; border: 2px solid #059669; padding: 15px 18px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <label for="select-computadora" style="margin: 0; color: #064e3b; font-size: 1.05rem;">🖥️ Computadora / Mesa:</label>
-                <select id="select-computadora" onchange="guardarComputadoraSeleccionada()" style="width: auto; min-width: 190px; padding: 10px 14px; font-weight: 800; color: #064e3b; border-color: #059669;">
-                    <option value="">-- Seleccionar Mesa --</option>
+    <!-- =========================================================
+         PANTALLA INICIAL DE CONFIGURACIÓN DE MESA (SOLO SE PIDE UNA VEZ)
+         ========================================================= -->
+    <div id="sec-setup-mesa" class="section" style="text-align: center; padding: 35px 20px;">
+        <div style="max-width: 480px; margin: 0 auto; background: #f0fdf4; border: 2px solid #059669; border-radius: 14px; padding: 28px 22px;">
+            <h2 style="color: #064e3b; margin-bottom: 10px;">🖥️ Asignación de Computadora</h2>
+            <p style="color: #065f46; margin-bottom: 20px; font-size: 1rem;">
+                Selecciona el número de <strong>Computadora / Mesa</strong> asignado a este equipo. Una vez aceptado quedará bloqueado para toda la jornada.
+            </p>
+            <div class="form-group">
+                <select id="select-computadora-inicial" style="font-weight: 800; color: #064e3b; border-color: #059669; text-align: center; font-size: 1.15rem;">
+                    <option value="">-- Seleccionar Mesa (1 al 20) --</option>
                 </select>
             </div>
-            <button type="button" class="btn" style="background: #064e3b; color: white; padding: 11px 18px; font-size: 0.98rem;" onclick="abrirResumenComputadora()">
-                📊 Ver Votos de Esta Computadora
-            </button>
+            <button type="button" class="btn btn-success" style="margin-top: 10px;" onclick="confirmarYBloqueoMesa()">✅ Aceptar y Bloquear Mesa</button>
         </div>
+    </div>
 
-        <!-- PANEL DE RESUMEN LOCAL (SOLO VOTOS INGRESADOS EN ESTA COMPUTADORA) -->
-        <div id="panel-resumen-computadora" style="display: none; background: #ffffff; border: 2.5px solid #064e3b; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(6, 78, 59, 0.12);">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; border-bottom: 2px solid #d1fae5; padding-bottom: 12px;">
-                <div>
-                    <h3 id="titulo-resumen-pc" style="color: #064e3b; font-size: 1.25rem; margin: 0;">📊 Resumen de Votos - Computadora</h3>
-                    <p style="color: #065f46; font-size: 0.92rem; margin-top: 4px;">Muestra únicamente los votos registrados en esta computadora, separados por cargo.</p>
-                </div>
-                <button type="button" class="btn" style="background: #dc2626; color: white; padding: 8px 16px; font-size: 0.9rem;" onclick="cerrarResumenComputadora()">✖ Cerrar Resumen</button>
+    <!-- =========================================================
+         SECCIÓN DE VOTACIÓN (ENCARGADOS DE COMPUTADORA)
+         ========================================================= -->
+    <div id="sec-votar" class="section">
+        
+        <!-- BARRA FIJA BLOQUEADA DE MESA + BOTÓN DE CIERRE DE RONDA -->
+        <div style="background: #f0fdf4; border: 2px solid #059669; padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="badge-mesa-bloqueada" style="background: #064e3b; color: white; padding: 9px 16px; border-radius: 8px; font-weight: 900; font-size: 1.05rem; letter-spacing: 0.4px;">
+                    🔒 COMPUTADORA --
+                </span>
             </div>
-            <div id="contenido-resumen-pc"></div>
+            <button type="button" class="btn" style="background: #059669; color: white; padding: 11px 18px; font-size: 0.98rem;" onclick="irACierreDeRonda()">
+                📊 Finalizar / Ver Votos de Esta Ronda
+            </button>
         </div>
 
         <div class="round-banner">
@@ -76,6 +83,24 @@
         <div id="voting-groups-container"></div>
 
         <button class="btn btn-success" id="btn-registrar-voto" onclick="registrarVoto()">GUARDAR Y REGISTRAR VOTO</button>
+    </div>
+
+    <!-- =========================================================
+         PÁGINA / VISTA APARTE: RESULTADOS DE LA RONDA FINALIZADA EN ESTA PC
+         ========================================================= -->
+    <div id="sec-cierre-ronda" class="section">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #d1fae5;">
+            <div>
+                <span id="cierre-mesa-tag" style="background: #064e3b; color: white; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.9rem;">🔒 COMPUTADORA --</span>
+                <h2 id="cierre-ronda-titulo" style="color: #064e3b; margin-top: 10px; font-size: 1.45rem;">Cierre de Votación</h2>
+                <p id="cierre-ronda-subtitulo" style="color: #065f46; font-size: 1rem; margin-top: 4px;">Votos registrados únicamente en esta computadora para la ronda actual.</p>
+            </div>
+            <button type="button" class="btn" style="background: #059669; color: white; padding: 12px 20px; font-size: 1rem;" onclick="volverAVotacionDesdeCierre()">
+                ⬅ Volver a Votación
+            </button>
+        </div>
+
+        <div id="contenido-cierre-ronda"></div>
     </div>
 
     <!-- SECCIÓN DE ADMINISTRACIÓN -->
@@ -149,8 +174,9 @@
             <button class="btn" style="background: #d97706; color: white; width: 100%;" onclick="sincronizarVotosLocales(false)">☁️ Sincronizar Votos Pendientes Ahora</button>
         </div>
         
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
             <button class="btn btn-primary" onclick="renderizarResultados()">Actualizar / Ver Conteo</button>
+            <button type="button" class="btn" style="background: #64748b; color: white;" onclick="liberarMesaLocal()">🔓 Cambiar Mesa de Este Equipo</button>
         </div>
 
         <!-- CONTENEDOR DE RESULTADOS GLOBALES -->
@@ -252,109 +278,125 @@
         { nombre: "Rafael", apellido: "Aguirre", foto: "img/13.jpeg" }
     ];
 
-    // --- INICIALIZAR SELECTOR DE COMPUTADORA (1 A 20) ---
-    function inicializarSelectorComputadora() {
-        const selectPC = document.getElementById('select-computadora');
-        if (!selectPC) return;
-
+    // --- CONFIGURACIÓN Y BLOQUEO DE MESA INICIAL ---
+    function llenarOpcionesMesaInicial() {
+        const selectInicial = document.getElementById('select-computadora-inicial');
+        if (!selectInicial) return;
         for (let i = 1; i <= 20; i++) {
             const opt = document.createElement('option');
             opt.value = i.toString();
             opt.textContent = `Computadora ${i} (Mesa ${i})`;
-            selectPC.appendChild(opt);
-        }
-
-        if (computadoraAsignada) {
-            selectPC.value = computadoraAsignada;
+            selectInicial.appendChild(opt);
         }
     }
 
-    function guardarComputadoraSeleccionada() {
-        const selectPC = document.getElementById('select-computadora');
-        computadoraAsignada = selectPC.value;
-        localStorage.setItem('computadora_asignada_plan_b', computadoraAsignada);
-        if (document.getElementById('panel-resumen-computadora').style.display === 'block') {
-            abrirResumenComputadora();
+    function actualizarEtiquetaMesaBloqueada() {
+        const badge = document.getElementById('badge-mesa-bloqueada');
+        const tagCierre = document.getElementById('cierre-mesa-tag');
+        const texto = computadoraAsignada ? `🔒 COMPUTADORA ${computadoraAsignada} (MESA ${computadoraAsignada})` : `🔒 SIN MESA ASIGNADA`;
+        if (badge) badge.innerText = texto;
+        if (tagCierre) tagCierre.innerText = texto;
+    }
+
+    function confirmarYBloqueoMesa() {
+        const selectInicial = document.getElementById('select-computadora-inicial');
+        const elegida = selectInicial.value;
+        if (!elegida) {
+            alert("Por favor selecciona el número de Computadora / Mesa (del 1 al 20).");
+            return;
+        }
+        if (confirm(`¿Confirmas que este equipo es la COMPUTADORA ${elegida} (MESA ${elegida})?\n\nUna vez aceptado quedará bloqueado.`)) {
+            computadoraAsignada = elegida;
+            localStorage.setItem('computadora_asignada_plan_b', computadoraAsignada);
+            actualizarEtiquetaMesaBloqueada();
+            switchTab('votar');
         }
     }
 
-    // --- RESUMEN LOCAL EXCLUSIVO PARA EL ENCARGADO DE ESTA COMPUTADORA ---
-    async function abrirResumenComputadora() {
+    function liberarMesaLocal() {
+        if (confirm("¿Deseas desbloquear el número de mesa guardado en este navegador para asignar otro?")) {
+            localStorage.removeItem('computadora_asignada_plan_b');
+            computadoraAsignada = "";
+            actualizarEtiquetaMesaBloqueada();
+            alert("Mesa desbloqueada. Al ir a Registro de Voto te pedirá elegirla de nuevo.");
+        }
+    }
+
+    // --- VISTA APARTE: SOLO VOTOS DE LA RONDA ACTUAL EN ESTA COMPUTADORA ---
+    async function irACierreDeRonda() {
         if (!computadoraAsignada) {
-            alert("Primero selecciona en el menú desplegable qué número de Computadora / Mesa eres (1 al 20).");
-            document.getElementById('select-computadora').focus();
+            switchTab('setup-mesa');
             return;
         }
 
-        const panel = document.getElementById('panel-resumen-computadora');
-        const titulo = document.getElementById('titulo-resumen-pc');
-        const contenido = document.getElementById('contenido-resumen-pc');
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('sec-cierre-ronda').classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        panel.style.display = 'block';
-        titulo.innerText = `📊 Votos Ingresados en Computadora ${computadoraAsignada} (Mesa ${computadoraAsignada})`;
-        contenido.innerHTML = `<p style="color: #64748b;">Consultando los votos de esta computadora...</p>`;
+        const rondaActualVista = rondaActiva;
+        const etiqueta = ETIQUETAS_VOTACION[rondaActualVista] || "Votación Actual";
+        const nombreCargo = NOMBRES_MOSTRAR[rondaActualVista] || rondaActualVista;
+
+        actualizarEtiquetaMesaBloqueada();
+        document.getElementById('cierre-ronda-titulo').innerText = `${etiqueta}: ${nombreCargo}`;
+        document.getElementById('cierre-ronda-subtitulo').innerText = `Subtotal de votos ingresados en la Computadora ${computadoraAsignada} únicamente para esta ronda:`;
+
+        const contenedor = document.getElementById('contenido-cierre-ronda');
+        contenedor.innerHTML = `<p style="color: #64748b;">Cargando votos de ${etiqueta} en esta computadora...</p>`;
 
         try {
             const todosLosVotos = await obtenerTodosLosVotosCombinados();
-            const votosDeEstaPC = todosLosVotos.filter(v => String(v.computadora || "") === String(computadoraAsignada));
+            const votosRondaEstaPC = todosLosVotos.filter(v =>
+                String(v.computadora || "") === String(computadoraAsignada) &&
+                v.grupo === rondaActualVista
+            );
+
+            const conteoRonda = candidatos.map(c => {
+                const total = votosRondaEstaPC.filter(v => v.candidatoId === c.id).length;
+                return { nombre: `${c.nombre} ${c.apellido}`, votos: total };
+            }).sort((a, b) => b.votos - a.votos);
 
             let html = `
-                <div style="background: #f0fdf4; border: 1px solid #a7f3d0; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-weight: 700; color: #064e3b;">
-                    Total de votos registrados en esta computadora (entre todas las rondas): <span style="font-size: 1.2rem; color: #059669;">${votosDeEstaPC.length}</span>
+                <div style="background: #d1fae5; border: 2px solid #059669; padding: 16px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <span style="font-weight: 800; color: #064e3b; font-size: 1.1rem;">🗳️ Total de votos en Computadora ${computadoraAsignada} (${etiqueta}):</span>
+                    <span style="background: #064e3b; color: white; padding: 6px 18px; border-radius: 20px; font-size: 1.35rem; font-weight: 900;">${votosRondaEstaPC.length}</span>
                 </div>
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Candidato</th>
+                            <th style="width: 160px; text-align: center;">Votos en PC ${computadoraAsignada}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
             `;
 
-            GRUPOS.forEach(grupo => {
-                const etiqueta = ETIQUETAS_VOTACION[grupo];
-                const nombreCargo = NOMBRES_MOSTRAR[grupo] || grupo;
-                const votosCargoPC = votosDeEstaPC.filter(v => v.grupo === grupo);
+            if (conteoRonda.length === 0) {
+                html += `<tr><td colspan="2" style="color: #64748b;">No hay candidatos cargados.</td></tr>`;
+            } else {
+                conteoRonda.forEach(item => {
+                    const estiloFila = item.votos > 0 ? 'background-color: #f0fdf4; font-weight: 800;' : 'color: #64748b;';
+                    const estiloBadge = item.votos === 0 ? 'background: #cbd5e1; color: #334155;' : '';
+                    html += `
+                        <tr style="${estiloFila}">
+                            <td style="text-transform: uppercase; font-size: 1.08rem;">${item.nombre}</td>
+                            <td style="text-align: center;"><span class="badge-votes" style="font-size: 1.1rem; ${estiloBadge}">${item.votos}</span></td>
+                        </tr>
+                    `;
+                });
+            }
 
-                const conteoCargo = candidatos.map(c => {
-                    const total = votosCargoPC.filter(v => v.candidatoId === c.id).length;
-                    return { nombre: `${c.nombre} ${c.apellido}`, votos: total };
-                }).sort((a, b) => b.votos - a.votos);
-
-                html += `
-                    <div style="margin-bottom: 20px;">
-                        <div style="background: #065f46; color: white; padding: 10px 14px; border-radius: 8px 8px 0 0; font-weight: 700; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                            <span>${etiqueta}: ${nombreCargo}</span>
-                            <span>Subtotal Computadora ${computadoraAsignada}: ${votosCargoPC.length} voto(s)</span>
-                        </div>
-                        <table class="results-table" style="margin-top: 0; border-radius: 0 0 8px 8px;">
-                            <thead>
-                                <tr>
-                                    <th>Candidato</th>
-                                    <th style="width: 130px; text-align: center;">Votos en PC ${computadoraAsignada}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                if (conteoCargo.length === 0) {
-                    html += `<tr><td colspan="2" style="color: #64748b;">No hay candidatos cargados.</td></tr>`;
-                } else {
-                    conteoCargo.forEach(item => {
-                        const resalte = item.votos > 0 ? 'background-color: #f0fdf4; font-weight: 700;' : 'color: #64748b;';
-                        html += `
-                            <tr style="${resalte}">
-                                <td style="text-transform: uppercase;">${item.nombre}</td>
-                                <td style="text-align: center;"><span class="badge-votes" style="${item.votos === 0 ? 'background: #cbd5e1; color: #334155;' : ''}">${item.votos}</span></td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                html += `</tbody></table></div>`;
-            });
-
-            contenido.innerHTML = html;
+            html += `</tbody></table>`;
+            contenedor.innerHTML = html;
         } catch (error) {
-            contenido.innerHTML = `<p style="color: #dc2626;">Error al cargar el resumen: ${error.message}</p>`;
+            contenedor.innerHTML = `<p style="color: #dc2626;">Error al cargar el cierre de ronda: ${error.message}</p>`;
         }
     }
 
-    function cerrarResumenComputadora() {
-        document.getElementById('panel-resumen-computadora').style.display = 'none';
+    function volverAVotacionDesdeCierre() {
+        switchTab('votar');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // --- ESCUCHAR EN TIEMPO REAL QUÉ VOTACIÓN ESTÁ ACTIVA ---
@@ -521,7 +563,8 @@
     }
 
     function inicializarModo() {
-        inicializarSelectorComputadora();
+        llenarOpcionesMesaInicial();
+        actualizarEtiquetaMesaBloqueada();
         const nav = document.getElementById('main-nav');
         actualizarBannerOffline();
 
@@ -540,7 +583,11 @@
         } else {
             nav.style.display = 'none';
             document.getElementById('main-subtitle').innerText = "Módulo de Votación Oficial";
-            switchTab('votar');
+            if (!computadoraAsignada) {
+                switchTab('setup-mesa');
+            } else {
+                switchTab('votar');
+            }
         }
     }
 
@@ -569,15 +616,23 @@
     }
 
     function switchTab(tab, event) {
+        if (tab === 'votar' && !computadoraAsignada) {
+            tab = 'setup-mesa';
+        }
+
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         
-        document.getElementById(`sec-${tab}`).classList.add('active');
-        if(event && event.target) event.target.classList.add('active');
+        const secEl = document.getElementById(`sec-${tab}`);
+        if (secEl) secEl.classList.add('active');
+        if (event && event.target) event.target.classList.add('active');
 
-        if(tab === 'votar') renderizarModuloVotacion();
-        if(tab === 'admin') renderizarModuloAdmin();
-        if(tab === 'resultados') {
+        if (tab === 'votar') {
+            actualizarEtiquetaMesaBloqueada();
+            renderizarModuloVotacion();
+        }
+        if (tab === 'admin') renderizarModuloAdmin();
+        if (tab === 'resultados') {
             actualizarBannerOffline();
             renderizarResultados();
         }
@@ -838,8 +893,7 @@
         const dui = duiInput.value.trim();
 
         if (!computadoraAsignada) {
-            alert('Por favor selecciona arriba qué número de Computadora / Mesa es este equipo (1 al 20) antes de registrar votos.');
-            document.getElementById('select-computadora').focus();
+            switchTab('setup-mesa');
             return;
         }
 
@@ -928,9 +982,6 @@
     function limpiarFormularioTrasVoto(duiInput, btnVotar, mensaje) {
         duiInput.value = "";
         renderizarModuloVotacion();
-        if (document.getElementById('panel-resumen-computadora').style.display === 'block') {
-            abrirResumenComputadora();
-        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
         btnVotar.disabled = false;
         btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
@@ -1035,7 +1086,6 @@
                 container.innerHTML += html;
             });
 
-            // --- CONSTRUIR DESGLOSE POR COMPUTADORA PARA EL ADMINISTRADOR ---
             renderizarDesglosePorComputadora(votosGuardados, breakdownContainer);
 
         } catch (error) {
@@ -1068,7 +1118,6 @@
             return;
         }
 
-        // Resumen rápido de totales por computadora
         html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px;">`;
         listaPCs.forEach(pc => {
             const totalPC = votosGuardados.filter(v => String(v.computadora) === pc).length;
@@ -1082,7 +1131,6 @@
         });
         html += `</div>`;
 
-        // Detalle por computadora y cargo
         listaPCs.forEach(pc => {
             const votosPC = votosGuardados.filter(v => String(v.computadora) === pc);
             const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `Computadora ${pc} (Mesa ${pc})`;
@@ -1162,7 +1210,7 @@
 
             let startY = 30;
 
-            listaPCs.forEach((pc, idxPC) => {
+            listaPCs.forEach((pc) => {
                 const votosPC = votosList.filter(v => String(v.computadora) === pc);
                 const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `COMPUTADORA ${pc} (MESA ${pc})`;
 
