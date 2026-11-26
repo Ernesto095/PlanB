@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elección de Junta Directiva 2027 - Plan B</title>
-    <!-- Enlace al archivo CSS externo -->
     <link rel="stylesheet" href="./css/style.css">
     
     <!-- Librerías para generar PDF -->
@@ -28,8 +27,34 @@
         <button class="nav-btn" onclick="switchTab('votar', event)">3. Registro de Voto (Vista Previa)</button>
     </nav>
 
-    <!-- SECCIÓN DE VOTACIÓN -->
+    <!-- SECCIÓN DE VOTACIÓN (ENCARGADOS DE COMPUTADORA) -->
     <div id="sec-votar" class="section active">
+        
+        <!-- BARRA DE IDENTIFICACIÓN DE COMPUTADORA Y BOTÓN DE RESUMEN LOCAL -->
+        <div style="background: #f0fdf4; border: 2px solid #059669; padding: 15px 18px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <label for="select-computadora" style="margin: 0; color: #064e3b; font-size: 1.05rem;">🖥️ Computadora / Mesa:</label>
+                <select id="select-computadora" onchange="guardarComputadoraSeleccionada()" style="width: auto; min-width: 190px; padding: 10px 14px; font-weight: 800; color: #064e3b; border-color: #059669;">
+                    <option value="">-- Seleccionar Mesa --</option>
+                </select>
+            </div>
+            <button type="button" class="btn" style="background: #064e3b; color: white; padding: 11px 18px; font-size: 0.98rem;" onclick="abrirResumenComputadora()">
+                📊 Ver Votos de Esta Computadora
+            </button>
+        </div>
+
+        <!-- PANEL DE RESUMEN LOCAL (SOLO VOTOS INGRESADOS EN ESTA COMPUTADORA) -->
+        <div id="panel-resumen-computadora" style="display: none; background: #ffffff; border: 2.5px solid #064e3b; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(6, 78, 59, 0.12);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; border-bottom: 2px solid #d1fae5; padding-bottom: 12px;">
+                <div>
+                    <h3 id="titulo-resumen-pc" style="color: #064e3b; font-size: 1.25rem; margin: 0;">📊 Resumen de Votos - Computadora</h3>
+                    <p style="color: #065f46; font-size: 0.92rem; margin-top: 4px;">Muestra únicamente los votos registrados en esta computadora, separados por cargo.</p>
+                </div>
+                <button type="button" class="btn" style="background: #dc2626; color: white; padding: 8px 16px; font-size: 0.9rem;" onclick="cerrarResumenComputadora()">✖ Cerrar Resumen</button>
+            </div>
+            <div id="contenido-resumen-pc"></div>
+        </div>
+
         <div class="round-banner">
             <div class="round-banner-label" id="voter-active-round-label">Votación Actual Abierta Para:</div>
             <div class="round-banner-title" id="voter-active-round-title">CARGANDO VOTACIÓN...</div>
@@ -55,8 +80,6 @@
 
     <!-- SECCIÓN DE ADMINISTRACIÓN -->
     <div id="sec-admin" class="section">
-        
-        <!-- CAJA DE CARGA AUTOMÁTICA -->
         <div style="background: #d1fae5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #6ee7b7;">
             <h3 style="color: #065f46; margin-bottom: 10px;">⚡ Carga Rápida de Candidatos</h3>
             <p style="margin-bottom: 15px; font-size: 0.95rem; color: #0f172a;">Presiona este botón <strong>una sola vez</strong> para cargar automáticamente a los 13 hermanos en el sistema con sus fotos predeterminadas.</p>
@@ -94,7 +117,7 @@
         <div class="admin-grid" id="admin-groups-container" style="margin-top: 15px;"></div>
     </div>
 
-    <!-- SECCIÓN DE RESULTADOS Y CONTROL DE VOTACIÓN -->
+    <!-- SECCIÓN DE RESULTADOS Y CONTROL DE VOTACIÓN (ADMINISTRADOR) -->
     <div id="sec-resultados" class="section">
         
         <!-- CONTROL DE VOTACIÓN ACTIVA EN TIEMPO REAL -->
@@ -114,8 +137,8 @@
             </div>
         </div>
 
-        <h2>Conteo Global y Reportes Oficiales</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados por votación y descarga de actas en PDF.</p>
+        <h2>Conteo Global y Auditoría por Computadora</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados por votación, desglose por cada computadora y descarga de actas en PDF.</p>
 
         <!-- PANEL DE RESCATE OFFLINE -->
         <div id="offline-sync-banner" style="display: none; background: #fef3c7; border: 2px solid #f59e0b; padding: 18px; border-radius: 10px; margin-bottom: 25px;">
@@ -130,9 +153,13 @@
             <button class="btn btn-primary" onclick="renderizarResultados()">Actualizar / Ver Conteo</button>
         </div>
 
+        <!-- CONTENEDOR DE RESULTADOS GLOBALES -->
         <div id="results-container" style="margin-top: 20px;"></div>
 
-        <!-- 6 BOTONES DE DESCARGA DE PDF -->
+        <!-- CONTENEDOR DE DESGLOSE POR COMPUTADORA -->
+        <div id="computer-breakdown-container" style="margin-top: 35px;"></div>
+
+        <!-- 7 BOTONES DE DESCARGA DE PDF -->
         <div class="pdf-actions-wrapper">
             <h3 style="color: #064e3b; margin-bottom: 12px;">📥 Descarga de Actas y Reportes Oficiales (PDF)</h3>
             
@@ -144,10 +171,11 @@
                 <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Diaconos')">📄 4. PDF Diáconos</button>
             </div>
 
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin: 18px 0 10px 0; font-weight: 600;">Reportes Generales Consolidados:</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin: 18px 0 10px 0; font-weight: 600;">Reportes Generales y Cuadre por Computadora:</p>
             <div class="pdf-buttons-grid pdf-buttons-generales">
                 <button class="btn btn-pdf-general" onclick="descargarPDF()">📋 5. Descargar Detalle General por DUI</button>
                 <button class="btn btn-pdf-totales" onclick="descargarPDFTotales()">🏆 6. Descargar PDF de Totales Generales</button>
+                <button class="btn" style="background: #0f766e; color: white; grid-column: 1 / -1; font-size: 1.05rem;" onclick="descargarPDFPorComputadora()">🖥️ 7. Descargar PDF Desglosado por Computadora (Mesa 1 a 20)</button>
             </div>
         </div>
     </div>
@@ -199,6 +227,7 @@
     
     let rondaGuardada = localStorage.getItem('ronda_activa_plan_b');
     let rondaActiva = GRUPOS.includes(rondaGuardada) ? rondaGuardada : "Misionero General";
+    let computadoraAsignada = localStorage.getItem('computadora_asignada_plan_b') || "";
     
     let candidatoSeleccionadoRonda = null;
     let ordenActualRonda = [];
@@ -222,6 +251,111 @@
         { nombre: "Roger", apellido: "Rivas", foto: "img/12.jpeg" },
         { nombre: "Rafael", apellido: "Aguirre", foto: "img/13.jpeg" }
     ];
+
+    // --- INICIALIZAR SELECTOR DE COMPUTADORA (1 A 20) ---
+    function inicializarSelectorComputadora() {
+        const selectPC = document.getElementById('select-computadora');
+        if (!selectPC) return;
+
+        for (let i = 1; i <= 20; i++) {
+            const opt = document.createElement('option');
+            opt.value = i.toString();
+            opt.textContent = `Computadora ${i} (Mesa ${i})`;
+            selectPC.appendChild(opt);
+        }
+
+        if (computadoraAsignada) {
+            selectPC.value = computadoraAsignada;
+        }
+    }
+
+    function guardarComputadoraSeleccionada() {
+        const selectPC = document.getElementById('select-computadora');
+        computadoraAsignada = selectPC.value;
+        localStorage.setItem('computadora_asignada_plan_b', computadoraAsignada);
+        if (document.getElementById('panel-resumen-computadora').style.display === 'block') {
+            abrirResumenComputadora();
+        }
+    }
+
+    // --- RESUMEN LOCAL EXCLUSIVO PARA EL ENCARGADO DE ESTA COMPUTADORA ---
+    async function abrirResumenComputadora() {
+        if (!computadoraAsignada) {
+            alert("Primero selecciona en el menú desplegable qué número de Computadora / Mesa eres (1 al 20).");
+            document.getElementById('select-computadora').focus();
+            return;
+        }
+
+        const panel = document.getElementById('panel-resumen-computadora');
+        const titulo = document.getElementById('titulo-resumen-pc');
+        const contenido = document.getElementById('contenido-resumen-pc');
+
+        panel.style.display = 'block';
+        titulo.innerText = `📊 Votos Ingresados en Computadora ${computadoraAsignada} (Mesa ${computadoraAsignada})`;
+        contenido.innerHTML = `<p style="color: #64748b;">Consultando los votos de esta computadora...</p>`;
+
+        try {
+            const todosLosVotos = await obtenerTodosLosVotosCombinados();
+            const votosDeEstaPC = todosLosVotos.filter(v => String(v.computadora || "") === String(computadoraAsignada));
+
+            let html = `
+                <div style="background: #f0fdf4; border: 1px solid #a7f3d0; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-weight: 700; color: #064e3b;">
+                    Total de votos registrados en esta computadora (entre todas las rondas): <span style="font-size: 1.2rem; color: #059669;">${votosDeEstaPC.length}</span>
+                </div>
+            `;
+
+            GRUPOS.forEach(grupo => {
+                const etiqueta = ETIQUETAS_VOTACION[grupo];
+                const nombreCargo = NOMBRES_MOSTRAR[grupo] || grupo;
+                const votosCargoPC = votosDeEstaPC.filter(v => v.grupo === grupo);
+
+                const conteoCargo = candidatos.map(c => {
+                    const total = votosCargoPC.filter(v => v.candidatoId === c.id).length;
+                    return { nombre: `${c.nombre} ${c.apellido}`, votos: total };
+                }).sort((a, b) => b.votos - a.votos);
+
+                html += `
+                    <div style="margin-bottom: 20px;">
+                        <div style="background: #065f46; color: white; padding: 10px 14px; border-radius: 8px 8px 0 0; font-weight: 700; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <span>${etiqueta}: ${nombreCargo}</span>
+                            <span>Subtotal Computadora ${computadoraAsignada}: ${votosCargoPC.length} voto(s)</span>
+                        </div>
+                        <table class="results-table" style="margin-top: 0; border-radius: 0 0 8px 8px;">
+                            <thead>
+                                <tr>
+                                    <th>Candidato</th>
+                                    <th style="width: 130px; text-align: center;">Votos en PC ${computadoraAsignada}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                if (conteoCargo.length === 0) {
+                    html += `<tr><td colspan="2" style="color: #64748b;">No hay candidatos cargados.</td></tr>`;
+                } else {
+                    conteoCargo.forEach(item => {
+                        const resalte = item.votos > 0 ? 'background-color: #f0fdf4; font-weight: 700;' : 'color: #64748b;';
+                        html += `
+                            <tr style="${resalte}">
+                                <td style="text-transform: uppercase;">${item.nombre}</td>
+                                <td style="text-align: center;"><span class="badge-votes" style="${item.votos === 0 ? 'background: #cbd5e1; color: #334155;' : ''}">${item.votos}</span></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                html += `</tbody></table></div>`;
+            });
+
+            contenido.innerHTML = html;
+        } catch (error) {
+            contenido.innerHTML = `<p style="color: #dc2626;">Error al cargar el resumen: ${error.message}</p>`;
+        }
+    }
+
+    function cerrarResumenComputadora() {
+        document.getElementById('panel-resumen-computadora').style.display = 'none';
+    }
 
     // --- ESCUCHAR EN TIEMPO REAL QUÉ VOTACIÓN ESTÁ ACTIVA ---
     db.collection("config").doc("estado").onSnapshot(
@@ -318,6 +452,7 @@
                     batch.set(db.collection("duis_ronda").doc(claveDuiRonda), { 
                         dui: voto.dui,
                         grupo: voto.grupo,
+                        computadora: voto.computadora || "Sin asignar",
                         registradoEl: firebase.firestore.FieldValue.serverTimestamp(),
                         sincronizadoOffline: true 
                     });
@@ -327,6 +462,7 @@
                         dui: voto.dui,
                         grupo: voto.grupo,
                         candidatoId: voto.candidatoId,
+                        computadora: voto.computadora || "Sin asignar",
                         fecha: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
@@ -346,8 +482,6 @@
 
             if (!silencioso) {
                 alert(`Sincronización terminada:\n✅ Subidos a la nube: ${subidos}\n⚠️ Ignorados por DUI repetido en la misma votación: ${duplicados}\n❌ Pendientes por error: ${fallidos.length}`);
-            } else if (subidos > 0) {
-                console.log(`Sincronización automática: ${subidos} voto(s) subidos a Firebase.`);
             }
         } finally {
             sincronizandoEnCurso = false;
@@ -387,6 +521,7 @@
     }
 
     function inicializarModo() {
+        inicializarSelectorComputadora();
         const nav = document.getElementById('main-nav');
         actualizarBannerOffline();
 
@@ -702,6 +837,12 @@
         const btnVotar = document.getElementById('btn-registrar-voto');
         const dui = duiInput.value.trim();
 
+        if (!computadoraAsignada) {
+            alert('Por favor selecciona arriba qué número de Computadora / Mesa es este equipo (1 al 20) antes de registrar votos.');
+            document.getElementById('select-computadora').focus();
+            return;
+        }
+
         if (!dui || dui.length !== 10) {
             alert('Por favor ingrese un número de DUI válido y completo (9 dígitos).');
             return;
@@ -726,12 +867,13 @@
             dui,
             grupo: rondaActiva,
             candidatoId: candidatoSeleccionadoRonda,
+            computadora: computadoraAsignada,
             fechaLocal: new Date().toISOString()
         };
 
         if (!navigator.onLine) {
             guardarVotoLocal(paqueteVoto);
-            limpiarFormularioTrasVoto(duiInput, btnVotar, '¡Voto guardado en modo SIN INTERNET! Se subirá solo cuando vuelva la señal. Listo para el siguiente hermano.');
+            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto guardado en Computadora ${computadoraAsignada} (SIN INTERNET)! Se subirá solo cuando vuelva la señal.`);
             return;
         }
 
@@ -751,6 +893,7 @@
                 batch.set(db.collection("duis_ronda").doc(claveDuiRonda), { 
                     dui,
                     grupo: rondaActiva,
+                    computadora: computadoraAsignada,
                     registradoEl: firebase.firestore.FieldValue.serverTimestamp() 
                 });
                 
@@ -759,6 +902,7 @@
                     dui,
                     grupo: rondaActiva,
                     candidatoId: candidatoSeleccionadoRonda,
+                    computadora: computadoraAsignada,
                     fecha: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -767,7 +911,7 @@
 
             await Promise.race([firebaseProcess(), timeoutPromise]);
 
-            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto para ${NOMBRES_MOSTRAR[rondaActiva]} registrado con éxito! Listo para el siguiente hermano.`);
+            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto registrado con éxito en Computadora ${computadoraAsignada} para ${NOMBRES_MOSTRAR[rondaActiva]}!`);
 
         } catch (error) {
             if (error.message === "DUI_DUPLICADO_RONDA") {
@@ -776,7 +920,7 @@
                 btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
             } else {
                 guardarVotoLocal(paqueteVoto);
-                limpiarFormularioTrasVoto(duiInput, btnVotar, 'Conexión lenta o caída: ¡Tu voto se guardó en el equipo y se subirá solo al volver la señal! Listo para el siguiente hermano.');
+                limpiarFormularioTrasVoto(duiInput, btnVotar, `Conexión lenta o caída: ¡Tu voto se guardó en Computadora ${computadoraAsignada} y se subirá solo al volver la señal!`);
             }
         }
     }
@@ -784,6 +928,9 @@
     function limpiarFormularioTrasVoto(duiInput, btnVotar, mensaje) {
         duiInput.value = "";
         renderizarModuloVotacion();
+        if (document.getElementById('panel-resumen-computadora').style.display === 'block') {
+            abrirResumenComputadora();
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
         btnVotar.disabled = false;
         btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
@@ -828,9 +975,12 @@
         return { conteo, votosDeEstaVotacion, cupos };
     }
 
+    // --- RENDERIZAR RESULTADOS GLOBALES + DESGLOSE POR COMPUTADORA ---
     async function renderizarResultados() {
         const container = document.getElementById('results-container');
+        const breakdownContainer = document.getElementById('computer-breakdown-container');
         container.innerHTML = "<p style='color: var(--text-muted);'>Cargando resultados globales...</p>";
+        breakdownContainer.innerHTML = "";
         actualizarBannerOffline();
 
         try {
@@ -884,8 +1034,184 @@
                 }
                 container.innerHTML += html;
             });
+
+            // --- CONSTRUIR DESGLOSE POR COMPUTADORA PARA EL ADMINISTRADOR ---
+            renderizarDesglosePorComputadora(votosGuardados, breakdownContainer);
+
         } catch (error) {
             container.innerHTML = "<p style='color: red;'>Error al cargar resultados: " + error.message + "</p>";
+        }
+    }
+
+    function renderizarDesglosePorComputadora(votosGuardados, targetEl) {
+        const computadorasPresentes = new Set();
+        votosGuardados.forEach(v => {
+            if (v.computadora) computadorasPresentes.add(String(v.computadora));
+        });
+
+        const listaPCs = Array.from(computadorasPresentes).sort((a, b) => {
+            const numA = parseInt(a, 10);
+            const numB = parseInt(b, 10);
+            if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+            return a.localeCompare(b);
+        });
+
+        let html = `
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #d1fae5;">
+            <h2 style="color: #064e3b; margin-bottom: 6px;">🖥️ Auditoría y Cuadre de Votos por Computadora</h2>
+            <p style="color: var(--text-muted); margin-bottom: 18px;">Desglose individual de los votos ingresados en cada computadora para verificar la suma contra los ganadores globales.</p>
+        `;
+
+        if (listaPCs.length === 0) {
+            html += `<p style="color: var(--text-muted); font-style: italic;">Aún no hay votos asociados a una computadora específica.</p>`;
+            targetEl.innerHTML = html;
+            return;
+        }
+
+        // Resumen rápido de totales por computadora
+        html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px;">`;
+        listaPCs.forEach(pc => {
+            const totalPC = votosGuardados.filter(v => String(v.computadora) === pc).length;
+            const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `Computadora ${pc}`;
+            html += `
+                <div style="background: #f0fdf4; border: 1.5px solid #6ee7b7; border-radius: 10px; padding: 12px; text-align: center;">
+                    <div style="font-weight: 800; color: #064e3b; font-size: 0.95rem;">${tituloPC}</div>
+                    <div style="font-size: 1.5rem; font-weight: 900; color: #059669; margin-top: 4px;">${totalPC} <span style="font-size: 0.85rem; font-weight: 600;">votos</span></div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+
+        // Detalle por computadora y cargo
+        listaPCs.forEach(pc => {
+            const votosPC = votosGuardados.filter(v => String(v.computadora) === pc);
+            const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `Computadora ${pc} (Mesa ${pc})`;
+
+            html += `
+                <div style="background: #ffffff; border: 2px solid #059669; border-radius: 12px; padding: 18px; margin-bottom: 22px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #d1fae5; padding-bottom: 10px; margin-bottom: 14px;">
+                        <h3 style="color: #064e3b; margin: 0;">🖥️ ${tituloPC}</h3>
+                        <span style="background: #064e3b; color: white; padding: 5px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">Total en esta PC: ${votosPC.length} voto(s)</span>
+                    </div>
+            `;
+
+            GRUPOS.forEach(grupo => {
+                const votosGrupoPC = votosPC.filter(v => v.grupo === grupo);
+                if (votosGrupoPC.length === 0) return;
+
+                const etiqueta = ETIQUETAS_VOTACION[grupo];
+                const cargo = NOMBRES_MOSTRAR[grupo] || grupo;
+                const conteo = candidatos.map(c => ({
+                    nombre: `${c.nombre} ${c.apellido}`,
+                    votos: votosGrupoPC.filter(v => v.candidatoId === c.id).length
+                })).filter(c => c.votos > 0).sort((a, b) => b.votos - a.votos);
+
+                html += `
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 700; color: #065f46; font-size: 0.95rem; margin-bottom: 6px;">
+                            ${etiqueta}: ${cargo} (${votosGrupoPC.length} votos)
+                        </div>
+                        <table class="results-table" style="margin-top: 0;">
+                            <tbody>
+                                ${conteo.map(c => `
+                                    <tr>
+                                        <td><strong style="text-transform: uppercase;">${c.nombre}</strong></td>
+                                        <td style="width: 110px; text-align: center;"><span class="badge-votes">${c.votos}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+        });
+
+        targetEl.innerHTML = html;
+    }
+
+    // --- PDF 7: DESGLOSADO POR COMPUTADORA ---
+    async function descargarPDFPorComputadora() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('portrait');
+
+        doc.setFontSize(15);
+        doc.text("Reporte Oficial Desglosado por Computadora", 14, 15);
+        doc.setFontSize(10);
+        doc.text(`Elección de Junta Directiva 2027 · Generado el: ${new Date().toLocaleString()}`, 14, 22);
+
+        try {
+            const votosList = await obtenerTodosLosVotosCombinados();
+            const computadorasPresentes = new Set();
+            votosList.forEach(v => {
+                if (v.computadora) computadorasPresentes.add(String(v.computadora));
+            });
+
+            const listaPCs = Array.from(computadorasPresentes).sort((a, b) => {
+                const numA = parseInt(a, 10);
+                const numB = parseInt(b, 10);
+                if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+                return a.localeCompare(b);
+            });
+
+            if (listaPCs.length === 0) {
+                alert("No hay votos registrados con número de computadora todavía.");
+                return;
+            }
+
+            let startY = 30;
+
+            listaPCs.forEach((pc, idxPC) => {
+                const votosPC = votosList.filter(v => String(v.computadora) === pc);
+                const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `COMPUTADORA ${pc} (MESA ${pc})`;
+
+                if (startY > 240) {
+                    doc.addPage();
+                    startY = 20;
+                }
+
+                doc.setFontSize(12);
+                doc.setTextColor(6, 78, 59);
+                doc.text(`${tituloPC} — Total de votos en esta máquina: ${votosPC.length}`, 14, startY);
+                doc.setTextColor(0, 0, 0);
+                startY += 6;
+
+                const rowsPC = [];
+                GRUPOS.forEach(grupo => {
+                    const etiqueta = ETIQUETAS_VOTACION[grupo];
+                    const cargo = NOMBRES_MOSTRAR[grupo] || grupo;
+                    const votosGrupoPC = votosPC.filter(v => v.grupo === grupo);
+
+                    const conteo = candidatos.map(c => ({
+                        nombre: `${c.nombre} ${c.apellido}`.toUpperCase(),
+                        votos: votosGrupoPC.filter(v => v.candidatoId === c.id).length
+                    })).filter(c => c.votos > 0).sort((a, b) => b.votos - a.votos);
+
+                    if (conteo.length === 0) {
+                        rowsPC.push([`${etiqueta} (${cargo})`, "Sin votos registrados", "0"]);
+                    } else {
+                        conteo.forEach(c => {
+                            rowsPC.push([`${etiqueta} (${cargo})`, c.nombre, c.votos.toString()]);
+                        });
+                    }
+                });
+
+                doc.autoTable({
+                    head: [["Votación / Cargo", "Candidato", "Votos en esta PC"]],
+                    body: rowsPC,
+                    startY: startY,
+                    styles: { fontSize: 9, cellPadding: 2.5 },
+                    headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255] },
+                    alternateRowStyles: { fillColor: [240, 253, 244] }
+                });
+
+                startY = doc.lastAutoTable.finalY + 12;
+            });
+
+            doc.save("Reporte_Desglosado_Por_Computadora_2027.pdf");
+        } catch (error) {
+            alert("Error al generar el PDF por computadora: " + error.message);
         }
     }
 
@@ -940,16 +1266,17 @@
             doc.setFontSize(12);
             doc.text(`Registro de Votantes por DUI (${etiquetaVotacion})`, 14, startYDetalle);
 
-            const colsDui = ["N.º", "DUI del Votante", "Candidato Seleccionado"];
+            const colsDui = ["N.º", "DUI del Votante", "Computadora", "Candidato Seleccionado"];
             const rowsDui = votosDeEstaVotacion.map((v, idx) => [
                 (idx + 1).toString(),
                 v.dui,
+                v.computadora ? `PC ${v.computadora}` : "-",
                 dictCandidatos[v.candidatoId] || "Desconocido"
             ]);
 
             doc.autoTable({
                 head: [colsDui],
-                body: rowsDui.length > 0 ? rowsDui : [["-", "Sin votos registrados aún", "-"]],
+                body: rowsDui.length > 0 ? rowsDui : [["-", "Sin votos registrados aún", "-", "-"]],
                 startY: startYDetalle + 5,
                 styles: { fontSize: 9, cellPadding: 3 },
                 headStyles: { fillColor: [6, 78, 59], textColor: [255, 255, 255] },
