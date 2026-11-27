@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elección de Junta Directiva 2027 - Plan B</title>
+    <title>Elección de Junta Directiva 2027</title>
     <link rel="stylesheet" href="./css/style.css">
     
     <!-- Librerías para generar PDF -->
@@ -32,9 +32,9 @@
          ========================================================= -->
     <div id="sec-setup-mesa" class="section" style="text-align: center; padding: 35px 20px;">
         <div style="max-width: 480px; margin: 0 auto; background: #f0fdf4; border: 2px solid #059669; border-radius: 14px; padding: 28px 22px;">
-            <h2 style="color: #064e3b; margin-bottom: 10px;">🖥️ Asignación de Computadora</h2>
+            <h2 style="color: #064e3b; margin-bottom: 10px;">🗳️ Asignación de Mesa</h2>
             <p style="color: #065f46; margin-bottom: 20px; font-size: 1rem;">
-                Selecciona el número de <strong>Computadora / Mesa</strong> asignado a este equipo. Una vez aceptado quedará bloqueado para toda la jornada.
+                Selecciona el número de <strong>Mesa</strong> asignado a este equipo. Una vez aceptado quedará bloqueado para toda la jornada.
             </p>
             <div class="form-group">
                 <select id="select-computadora-inicial" style="font-weight: 800; color: #064e3b; border-color: #059669; text-align: center; font-size: 1.15rem;">
@@ -46,7 +46,7 @@
     </div>
 
     <!-- =========================================================
-         SECCIÓN DE VOTACIÓN (ENCARGADOS DE COMPUTADORA)
+         SECCIÓN DE VOTACIÓN (ENCARGADOS DE MESA)
          ========================================================= -->
     <div id="sec-votar" class="section">
         
@@ -54,7 +54,7 @@
         <div style="background: #f0fdf4; border: 2px solid #059669; padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span id="badge-mesa-bloqueada" style="background: #064e3b; color: white; padding: 9px 16px; border-radius: 8px; font-weight: 900; font-size: 1.05rem; letter-spacing: 0.4px;">
-                    🔒 COMPUTADORA --
+                    🔒 MESA --
                 </span>
             </div>
             <button type="button" class="btn" style="background: #059669; color: white; padding: 11px 18px; font-size: 0.98rem;" onclick="irACierreDeRonda()">
@@ -86,14 +86,14 @@
     </div>
 
     <!-- =========================================================
-         PÁGINA / VISTA APARTE: RESULTADOS DE LA RONDA FINALIZADA EN ESTA PC
+         PÁGINA / VISTA APARTE: RESULTADOS DE LA RONDA FINALIZADA EN ESTA MESA
          ========================================================= -->
     <div id="sec-cierre-ronda" class="section">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #d1fae5;">
             <div>
-                <span id="cierre-mesa-tag" style="background: #064e3b; color: white; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.9rem;">🔒 COMPUTADORA --</span>
+                <span id="cierre-mesa-tag" style="background: #064e3b; color: white; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.9rem;">🔒 MESA --</span>
                 <h2 id="cierre-ronda-titulo" style="color: #064e3b; margin-top: 10px; font-size: 1.45rem;">Cierre de Votación</h2>
-                <p id="cierre-ronda-subtitulo" style="color: #065f46; font-size: 1rem; margin-top: 4px;">Votos registrados únicamente en esta computadora para la ronda actual.</p>
+                <p id="cierre-ronda-subtitulo" style="color: #065f46; font-size: 1rem; margin-top: 4px;">Votos registrados únicamente en esta mesa para la ronda actual.</p>
             </div>
             <button type="button" class="btn" style="background: #059669; color: white; padding: 12px 20px; font-size: 1rem;" onclick="volverAVotacionDesdeCierre()">
                 ⬅ Volver a Votación
@@ -162,8 +162,8 @@
             </div>
         </div>
 
-        <h2>Conteo Global y Auditoría por Computadora</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados por votación, desglose por cada computadora y descarga de actas en PDF.</p>
+        <h2>Conteo Global y Auditoría por Mesa</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados por votación, desglose por cada mesa y descarga de actas en PDF.</p>
 
         <!-- PANEL DE RESCATE OFFLINE -->
         <div id="offline-sync-banner" style="display: none; background: #fef3c7; border: 2px solid #f59e0b; padding: 18px; border-radius: 10px; margin-bottom: 25px;">
@@ -182,7 +182,7 @@
         <!-- CONTENEDOR DE RESULTADOS GLOBALES -->
         <div id="results-container" style="margin-top: 20px;"></div>
 
-        <!-- CONTENEDOR DE DESGLOSE POR COMPUTADORA -->
+        <!-- CONTENEDOR DE DESGLOSE POR MESA -->
         <div id="computer-breakdown-container" style="margin-top: 35px;"></div>
 
         <!-- 7 BOTONES DE DESCARGA DE PDF -->
@@ -197,11 +197,11 @@
                 <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Diaconos')">📄 4. PDF Diáconos</button>
             </div>
 
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin: 18px 0 10px 0; font-weight: 600;">Reportes Generales y Cuadre por Computadora:</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin: 18px 0 10px 0; font-weight: 600;">Reportes Generales y Cuadre por Mesa:</p>
             <div class="pdf-buttons-grid pdf-buttons-generales">
                 <button class="btn btn-pdf-general" onclick="descargarPDF()">📋 5. Descargar Detalle General por DUI</button>
                 <button class="btn btn-pdf-totales" onclick="descargarPDFTotales()">🏆 6. Descargar PDF de Totales Generales</button>
-                <button class="btn" style="background: #0f766e; color: white; grid-column: 1 / -1; font-size: 1.05rem;" onclick="descargarPDFPorComputadora()">🖥️ 7. Descargar PDF Desglosado por Computadora (Mesa 1 a 20)</button>
+                <button class="btn" style="background: #0f766e; color: white; grid-column: 1 / -1; font-size: 1.05rem;" onclick="descargarPDFPorComputadora()">🗳️ 7. Descargar PDF Desglosado por Mesa (Mesa 1 a 20)</button>
             </div>
         </div>
     </div>
@@ -285,7 +285,7 @@
         for (let i = 1; i <= 20; i++) {
             const opt = document.createElement('option');
             opt.value = i.toString();
-            opt.textContent = `Computadora ${i} (Mesa ${i})`;
+            opt.textContent = `Mesa ${i}`;
             selectInicial.appendChild(opt);
         }
     }
@@ -293,7 +293,7 @@
     function actualizarEtiquetaMesaBloqueada() {
         const badge = document.getElementById('badge-mesa-bloqueada');
         const tagCierre = document.getElementById('cierre-mesa-tag');
-        const texto = computadoraAsignada ? `🔒 COMPUTADORA ${computadoraAsignada} (MESA ${computadoraAsignada})` : `🔒 SIN MESA ASIGNADA`;
+        const texto = computadoraAsignada ? `🔒 MESA ${computadoraAsignada}` : `🔒 SIN MESA ASIGNADA`;
         if (badge) badge.innerText = texto;
         if (tagCierre) tagCierre.innerText = texto;
     }
@@ -302,10 +302,10 @@
         const selectInicial = document.getElementById('select-computadora-inicial');
         const elegida = selectInicial.value;
         if (!elegida) {
-            alert("Por favor selecciona el número de Computadora / Mesa (del 1 al 20).");
+            alert("Por favor selecciona el número de Mesa (del 1 al 20).");
             return;
         }
-        if (confirm(`¿Confirmas que este equipo es la COMPUTADORA ${elegida} (MESA ${elegida})?\n\nUna vez aceptado quedará bloqueado.`)) {
+        if (confirm(`¿Confirmas que este equipo es la MESA ${elegida}?\n\nUna vez aceptado quedará bloqueado.`)) {
             computadoraAsignada = elegida;
             localStorage.setItem('computadora_asignada_plan_b', computadoraAsignada);
             actualizarEtiquetaMesaBloqueada();
@@ -322,7 +322,7 @@
         }
     }
 
-    // --- VISTA APARTE: SOLO VOTOS DE LA RONDA ACTUAL EN ESTA COMPUTADORA ---
+    // --- VISTA APARTE: SOLO VOTOS DE LA RONDA ACTUAL EN ESTA MESA ---
     async function irACierreDeRonda() {
         if (!computadoraAsignada) {
             switchTab('setup-mesa');
@@ -339,10 +339,10 @@
 
         actualizarEtiquetaMesaBloqueada();
         document.getElementById('cierre-ronda-titulo').innerText = `${etiqueta}: ${nombreCargo}`;
-        document.getElementById('cierre-ronda-subtitulo').innerText = `Subtotal de votos ingresados en la Computadora ${computadoraAsignada} únicamente para esta ronda:`;
+        document.getElementById('cierre-ronda-subtitulo').innerText = `Subtotal de votos ingresados en la Mesa ${computadoraAsignada} únicamente para esta ronda:`;
 
         const contenedor = document.getElementById('contenido-cierre-ronda');
-        contenedor.innerHTML = `<p style="color: #64748b;">Cargando votos de ${etiqueta} en esta computadora...</p>`;
+        contenedor.innerHTML = `<p style="color: #64748b;">Cargando votos de ${etiqueta} en esta mesa...</p>`;
 
         try {
             const todosLosVotos = await obtenerTodosLosVotosCombinados();
@@ -358,7 +358,7 @@
 
             let html = `
                 <div style="background: #d1fae5; border: 2px solid #059669; padding: 16px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <span style="font-weight: 800; color: #064e3b; font-size: 1.1rem;">🗳️ Total de votos en Computadora ${computadoraAsignada} (${etiqueta}):</span>
+                    <span style="font-weight: 800; color: #064e3b; font-size: 1.1rem;">🗳️ Total de votos de la Mesa ${computadoraAsignada} (${etiqueta}):</span>
                     <span style="background: #064e3b; color: white; padding: 6px 18px; border-radius: 20px; font-size: 1.35rem; font-weight: 900;">${votosRondaEstaPC.length}</span>
                 </div>
 
@@ -366,7 +366,7 @@
                     <thead>
                         <tr>
                             <th>Candidato</th>
-                            <th style="width: 160px; text-align: center;">Votos en PC ${computadoraAsignada}</th>
+                            <th style="width: 160px; text-align: center;">Votos en Mesa ${computadoraAsignada}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -597,7 +597,6 @@
                 candidatos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 localStorage.setItem('candidatos_cache_plan_b', JSON.stringify(candidatos));
             }
-            
             if (document.getElementById('sec-votar').classList.contains('active')) renderizarModuloVotacion();
             if (document.getElementById('sec-admin').classList.contains('active')) renderizarModuloAdmin();
         },
@@ -927,7 +926,7 @@
 
         if (!navigator.onLine) {
             guardarVotoLocal(paqueteVoto);
-            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto guardado en Computadora ${computadoraAsignada} (SIN INTERNET)! Se subirá solo cuando vuelva la señal.`);
+            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto guardado en Mesa ${computadoraAsignada} (SIN INTERNET)! Se subirá solo cuando vuelva la señal.`);
             return;
         }
 
@@ -965,7 +964,7 @@
 
             await Promise.race([firebaseProcess(), timeoutPromise]);
 
-            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto registrado con éxito en Computadora ${computadoraAsignada} para ${NOMBRES_MOSTRAR[rondaActiva]}!`);
+            limpiarFormularioTrasVoto(duiInput, btnVotar, `¡Voto registrado con éxito en Mesa ${computadoraAsignada} para ${NOMBRES_MOSTRAR[rondaActiva]}!`);
 
         } catch (error) {
             if (error.message === "DUI_DUPLICADO_RONDA") {
@@ -974,7 +973,7 @@
                 btnVotar.innerText = "GUARDAR Y REGISTRAR VOTO";
             } else {
                 guardarVotoLocal(paqueteVoto);
-                limpiarFormularioTrasVoto(duiInput, btnVotar, `Conexión lenta o caída: ¡Tu voto se guardó en Computadora ${computadoraAsignada} y se subirá solo al volver la señal!`);
+                limpiarFormularioTrasVoto(duiInput, btnVotar, `Conexión lenta o caída: ¡Tu voto se guardó en Mesa ${computadoraAsignada} y se subirá solo al volver la señal!`);
             }
         }
     }
@@ -1026,7 +1025,7 @@
         return { conteo, votosDeEstaVotacion, cupos };
     }
 
-    // --- RENDERIZAR RESULTADOS GLOBALES + DESGLOSE POR COMPUTADORA ---
+    // --- RENDERIZAR RESULTADOS GLOBALES + DESGLOSE POR MESA ---
     async function renderizarResultados() {
         const container = document.getElementById('results-container');
         const breakdownContainer = document.getElementById('computer-breakdown-container');
@@ -1108,12 +1107,12 @@
 
         let html = `
             <hr style="margin: 30px 0; border: none; border-top: 2px solid #d1fae5;">
-            <h2 style="color: #064e3b; margin-bottom: 6px;">🖥️ Auditoría y Cuadre de Votos por Computadora</h2>
-            <p style="color: var(--text-muted); margin-bottom: 18px;">Desglose individual de los votos ingresados en cada computadora para verificar la suma contra los ganadores globales.</p>
+            <h2 style="color: #064e3b; margin-bottom: 6px;">🗳️ Auditoría y Cuadre de Votos por Mesa</h2>
+            <p style="color: var(--text-muted); margin-bottom: 18px;">Desglose individual de los votos ingresados en cada mesa para verificar la suma contra los ganadores globales.</p>
         `;
 
         if (listaPCs.length === 0) {
-            html += `<p style="color: var(--text-muted); font-style: italic;">Aún no hay votos asociados a una computadora específica.</p>`;
+            html += `<p style="color: var(--text-muted); font-style: italic;">Aún no hay votos asociados a una mesa específica.</p>`;
             targetEl.innerHTML = html;
             return;
         }
@@ -1121,7 +1120,7 @@
         html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px;">`;
         listaPCs.forEach(pc => {
             const totalPC = votosGuardados.filter(v => String(v.computadora) === pc).length;
-            const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `Computadora ${pc}`;
+            const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `Mesa ${pc}`;
             html += `
                 <div style="background: #f0fdf4; border: 1.5px solid #6ee7b7; border-radius: 10px; padding: 12px; text-align: center;">
                     <div style="font-weight: 800; color: #064e3b; font-size: 0.95rem;">${tituloPC}</div>
@@ -1133,13 +1132,13 @@
 
         listaPCs.forEach(pc => {
             const votosPC = votosGuardados.filter(v => String(v.computadora) === pc);
-            const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `Computadora ${pc} (Mesa ${pc})`;
+            const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `Mesa ${pc}`;
 
             html += `
                 <div style="background: #ffffff; border: 2px solid #059669; border-radius: 12px; padding: 18px; margin-bottom: 22px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #d1fae5; padding-bottom: 10px; margin-bottom: 14px;">
-                        <h3 style="color: #064e3b; margin: 0;">🖥️ ${tituloPC}</h3>
-                        <span style="background: #064e3b; color: white; padding: 5px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">Total en esta PC: ${votosPC.length} voto(s)</span>
+                        <h3 style="color: #064e3b; margin: 0;">🗳️ ${tituloPC}</h3>
+                        <span style="background: #064e3b; color: white; padding: 5px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">Total de votos de la Mesa ${pc}: ${votosPC.length}</span>
                     </div>
             `;
 
@@ -1179,15 +1178,15 @@
         targetEl.innerHTML = html;
     }
 
-    // --- PDF 7: DESGLOSADO POR COMPUTADORA ---
+    // --- PDF 7: DESGLOSADO POR MESA (LETRA 15pt) ---
     async function descargarPDFPorComputadora() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait');
 
+        doc.setFontSize(18);
+        doc.text("Reporte Oficial Desglosado por Mesa", 14, 16);
         doc.setFontSize(15);
-        doc.text("Reporte Oficial Desglosado por Computadora", 14, 15);
-        doc.setFontSize(10);
-        doc.text(`Elección de Junta Directiva 2027 · Generado el: ${new Date().toLocaleString()}`, 14, 22);
+        doc.text(`Elección de Junta Directiva 2027 · ${new Date().toLocaleString()}`, 14, 24);
 
         try {
             const votosList = await obtenerTodosLosVotosCombinados();
@@ -1204,24 +1203,24 @@
             });
 
             if (listaPCs.length === 0) {
-                alert("No hay votos registrados con número de computadora todavía.");
+                alert("No hay votos registrados con número de mesa todavía.");
                 return;
             }
 
-            let startY = 30;
+            let startY = 34;
 
             listaPCs.forEach((pc) => {
                 const votosPC = votosList.filter(v => String(v.computadora) === pc);
-                const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `COMPUTADORA ${pc} (MESA ${pc})`;
+                const tituloPC = isNaN(parseInt(pc, 10)) ? pc : `MESA ${pc}`;
 
-                if (startY > 240) {
+                if (startY > 235) {
                     doc.addPage();
                     startY = 20;
                 }
 
-                doc.setFontSize(12);
+                doc.setFontSize(15);
                 doc.setTextColor(6, 78, 59);
-                doc.text(`${tituloPC} — Total de votos en esta máquina: ${votosPC.length}`, 14, startY);
+                doc.text(`${tituloPC} — Total de votos de la Mesa ${pc}: ${votosPC.length}`, 14, startY);
                 doc.setTextColor(0, 0, 0);
                 startY += 6;
 
@@ -1246,23 +1245,24 @@
                 });
 
                 doc.autoTable({
-                    head: [["Votación / Cargo", "Candidato", "Votos en esta PC"]],
+                    head: [["Votación / Cargo", "Candidato", "Votos en Mesa"]],
                     body: rowsPC,
                     startY: startY,
-                    styles: { fontSize: 9, cellPadding: 2.5 },
-                    headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255] },
+                    styles: { fontSize: 15, cellPadding: 3 },
+                    headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontSize: 15 },
                     alternateRowStyles: { fillColor: [240, 253, 244] }
                 });
 
-                startY = doc.lastAutoTable.finalY + 12;
+                startY = doc.lastAutoTable.finalY + 14;
             });
 
-            doc.save("Reporte_Desglosado_Por_Computadora_2027.pdf");
+            doc.save("Reporte_Desglosado_Por_Mesa_2027.pdf");
         } catch (error) {
-            alert("Error al generar el PDF por computadora: " + error.message);
+            alert("Error al generar el PDF por mesa: " + error.message);
         }
     }
 
+    // --- PDF 1 A 4: ACTAS POR CARGO (LETRA 15pt) ---
     async function descargarPDFPorCargo(grupo) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait');
@@ -1270,35 +1270,35 @@
         const etiquetaVotacion = ETIQUETAS_VOTACION[grupo];
         const tituloMostrar = NOMBRES_MOSTRAR[grupo] || grupo;
 
+        doc.setFontSize(18);
+        doc.text(`Acta Oficial - ${etiquetaVotacion}`, 14, 16);
         doc.setFontSize(15);
-        doc.text(`Acta Oficial - ${etiquetaVotacion}`, 14, 15);
-        doc.setFontSize(12);
-        doc.text(`Cargo: ${tituloMostrar}`, 14, 22);
-        doc.setFontSize(10);
-        doc.text(`Elección de Junta Directiva 2027 · Generado el: ${new Date().toLocaleString()}`, 14, 29);
+        doc.text(`Cargo: ${tituloMostrar}`, 14, 24);
+        doc.setFontSize(15);
+        doc.text(`Elección Junta Directiva 2027 · ${new Date().toLocaleString()}`, 14, 32);
 
         try {
             const votosList = await obtenerTodosLosVotosCombinados();
             const { conteo, votosDeEstaVotacion, cupos } = calcularConteoConGanadores(votosList, grupo);
             const textoCupos = cupos === 1 ? "1 ganador" : `${cupos} ganadores`;
 
-            doc.setFontSize(11);
-            doc.text(`Total de votos emitidos en esta votación: ${votosDeEstaVotacion.length}  |  Plazas a elegir: ${textoCupos}`, 14, 37);
+            doc.setFontSize(15);
+            doc.text(`Total votos: ${votosDeEstaVotacion.length}  |  Plazas: ${textoCupos}`, 14, 41);
 
-            const colsConteo = ["Pos.", "Candidato", "Total de Votos", "Resultado"];
+            const colsConteo = ["Pos.", "Candidato", "Votos", "Resultado"];
             const rowsConteo = conteo.map((c, index) => [
                 (index + 1).toString(),
                 c.nombreCompleto.toUpperCase(),
                 c.votos.toString(),
-                c.esGanador ? "ELECTO (GANADOR)" : "-"
+                c.esGanador ? "ELECTO" : "-"
             ]);
 
             doc.autoTable({
                 head: [colsConteo],
                 body: rowsConteo,
-                startY: 43,
-                styles: { fontSize: 10, cellPadding: 3 },
-                headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255] },
+                startY: 47,
+                styles: { fontSize: 15, cellPadding: 3 },
+                headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontSize: 15 },
                 alternateRowStyles: { fillColor: [240, 253, 244] }
             });
 
@@ -1306,28 +1306,28 @@
             candidatos.forEach(c => dictCandidatos[c.id] = `${c.nombre} ${c.apellido}`);
 
             let startYDetalle = doc.lastAutoTable.finalY + 14;
-            if (startYDetalle > 245) {
+            if (startYDetalle > 235) {
                 doc.addPage();
                 startYDetalle = 20;
             }
 
-            doc.setFontSize(12);
+            doc.setFontSize(15);
             doc.text(`Registro de Votantes por DUI (${etiquetaVotacion})`, 14, startYDetalle);
 
-            const colsDui = ["N.º", "DUI del Votante", "Computadora", "Candidato Seleccionado"];
+            const colsDui = ["N.º", "DUI del Votante", "Mesa", "Candidato Seleccionado"];
             const rowsDui = votosDeEstaVotacion.map((v, idx) => [
                 (idx + 1).toString(),
                 v.dui,
-                v.computadora ? `PC ${v.computadora}` : "-",
+                v.computadora ? `Mesa ${v.computadora}` : "-",
                 dictCandidatos[v.candidatoId] || "Desconocido"
             ]);
 
             doc.autoTable({
                 head: [colsDui],
                 body: rowsDui.length > 0 ? rowsDui : [["-", "Sin votos registrados aún", "-", "-"]],
-                startY: startYDetalle + 5,
-                styles: { fontSize: 9, cellPadding: 3 },
-                headStyles: { fillColor: [6, 78, 59], textColor: [255, 255, 255] },
+                startY: startYDetalle + 6,
+                styles: { fontSize: 15, cellPadding: 3 },
+                headStyles: { fillColor: [6, 78, 59], textColor: [255, 255, 255], fontSize: 15 },
                 alternateRowStyles: { fillColor: [240, 253, 244] }
             });
 
@@ -1338,14 +1338,15 @@
         }
     }
 
+    // --- PDF 5: DETALLE GENERAL POR DUI (LETRA 15pt) ---
     async function descargarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape'); 
 
-        doc.setFontSize(14);
-        doc.text("Reporte Detallado General por DUI - Elección Junta Directiva 2027", 14, 15);
-        doc.setFontSize(10);
-        doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 22);
+        doc.setFontSize(18);
+        doc.text("Reporte Detallado General por DUI - Elección Junta Directiva 2027", 14, 16);
+        doc.setFontSize(15);
+        doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 24);
 
         try {
             const votosList = await obtenerTodosLosVotosCombinados();
@@ -1360,15 +1361,15 @@
             });
 
             const duisUnicos = Object.keys(votosPorDui);
-            doc.setFontSize(11);
-            doc.text(`Total de hermanos participantes (DUIs únicos): ${duisUnicos.length}`, 14, 29);
+            doc.setFontSize(15);
+            doc.text(`Total de hermanos participantes (DUIs únicos): ${duisUnicos.length}`, 14, 32);
 
             const tableColumn = [
-                "DUI del Votante",
-                "1.ª Votación: Misionero (Pres./Rep. Legal)",
-                "2.ª Votación: Ministro",
-                "3.ª Votación: Secretario/Tesorero",
-                "4.ª Votación: Diáconos"
+                "DUI",
+                "1.ª Misionero",
+                "2.ª Ministro",
+                "3.ª Sec./Tesorero",
+                "4.ª Diáconos"
             ];
             const tableRows = [];
 
@@ -1386,9 +1387,9 @@
             doc.autoTable({
                 head: [tableColumn],
                 body: tableRows,
-                startY: 35,
-                styles: { fontSize: 9, cellPadding: 3 },
-                headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255] },
+                startY: 38,
+                styles: { fontSize: 15, cellPadding: 3 },
+                headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontSize: 15 },
                 alternateRowStyles: { fillColor: [240, 253, 244] }
             });
 
@@ -1398,24 +1399,25 @@
         }
     }
 
+    // --- PDF 6: TOTALES CONSOLIDADOS (LETRA 15pt) ---
     async function descargarPDFTotales() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait'); 
 
-        doc.setFontSize(16);
-        doc.text("Resultados Oficiales Consolidados - Elección Junta Directiva 2027", 14, 15);
-        doc.setFontSize(10);
-        doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 22);
+        doc.setFontSize(18);
+        doc.text("Resultados Oficiales Consolidados - Junta Directiva 2027", 14, 16);
+        doc.setFontSize(15);
+        doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 24);
 
         try {
             const votosList = await obtenerTodosLosVotosCombinados();
             const hermanosUnicos = new Set(votosList.map(v => v.dui)).size;
 
-            doc.setFontSize(12);
-            doc.text(`Total de hermanos que participaron (DUIs únicos): ${hermanosUnicos}`, 14, 30);
-            doc.text(`Total de votos emitidos entre las 4 votaciones: ${votosList.length}`, 14, 37);
+            doc.setFontSize(15);
+            doc.text(`Total hermanos participantes (DUIs únicos): ${hermanosUnicos}`, 14, 33);
+            doc.text(`Total votos emitidos (4 votaciones): ${votosList.length}`, 14, 41);
 
-            let startY = 48;
+            let startY = 51;
 
             GRUPOS.forEach(grupo => {
                 const etiquetaVotacion = ETIQUETAS_VOTACION[grupo];
@@ -1423,7 +1425,7 @@
                 const { conteo, votosDeEstaVotacion, cupos } = calcularConteoConGanadores(votosList, grupo);
                 const textoCupos = cupos === 1 ? "1 ganador" : `${cupos} ganadores`;
 
-                const tableColumn = ["Candidato", "Total de Votos Obtenidos"];
+                const tableColumn = ["Candidato", "Votos"];
                 const tableRows = [];
 
                 conteo.forEach(c => {
@@ -1434,23 +1436,28 @@
                     tableRows.push([nombreMostrado, c.votos.toString()]);
                 });
 
-                doc.setFontSize(11);
+                if (startY > 235) {
+                    doc.addPage();
+                    startY = 20;
+                }
+
+                doc.setFontSize(15);
                 doc.text(`${etiquetaVotacion}: ${tituloMostrar}`, 14, startY);
-                doc.setFontSize(9.5);
-                doc.text(`Votos en esta votación: ${votosDeEstaVotacion.length} · Plazas: ${textoCupos}`, 14, startY + 5);
+                doc.setFontSize(15);
+                doc.text(`Votos: ${votosDeEstaVotacion.length} · Plazas: ${textoCupos}`, 14, startY + 7);
                 
                 doc.autoTable({
                     head: [tableColumn],
                     body: tableRows,
-                    startY: startY + 9,
-                    styles: { fontSize: 10, cellPadding: 3 },
-                    headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255] }, 
+                    startY: startY + 11,
+                    styles: { fontSize: 15, cellPadding: 3 },
+                    headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontSize: 15 }, 
                     alternateRowStyles: { fillColor: [240, 253, 244] }
                 });
 
                 startY = doc.lastAutoTable.finalY + 14;
                 
-                if (startY > 255) {
+                if (startY > 240) {
                     doc.addPage();
                     startY = 20;
                 }
