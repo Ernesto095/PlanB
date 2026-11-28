@@ -145,25 +145,26 @@
     <!-- SECCIÓN DE RESULTADOS Y CONTROL DE VOTACIÓN (ADMINISTRADOR) -->
     <div id="sec-resultados" class="section">
         
-        <!-- CONTROL DE VOTACIÓN ACTIVA EN TIEMPO REAL -->
+        <!-- CONTROL DE VOTACIÓN ACTIVA EN TIEMPO REAL (5 RONDAS) -->
         <div style="background: #d1fae5; border: 2px solid #059669; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
-            <h3 style="color: #064e3b; margin-bottom: 8px;">📢 Control de Votación Activa (En Vivo)</h3>
+            <h3 style="color: #064e3b; margin-bottom: 8px;">📢 Control de Votación Activa (En Vivo - 5 Rondas)</h3>
             <p style="color: #065f46; margin-bottom: 12px; font-size: 1rem;">
                 Selecciona la votación que se encuentra abierta en este momento. Todas las pantallas cambiarán automáticamente a este cargo:
             </p>
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <select id="select-ronda-activa" style="flex: 1; min-width: 260px; font-weight: 700; color: #064e3b;">
-                    <option value="Misionero General">Primera Votación: MISIONERO (PRESIDENTE/REPRESENTANTE LEGAL) — 1 Ganador</option>
-                    <option value="Ministro">Segunda Votación: MINISTRO — 2 Ganadores</option>
-                    <option value="Secretario_Tesorero">Tercera Votación: SECRETARIO/TESORERO — 2 Ganadores</option>
-                    <option value="Diaconos">Cuarta Votación: DIÁCONOS — 3 Ganadores</option>
+                    <option value="Misionero">Primera Votación: MISIONERO — 1 Ganador</option>
+                    <option value="Ministros">Segunda Votación: MINISTROS — 2 Ganadores</option>
+                    <option value="Secretario">Tercera Votación: SECRETARIO — 1 Ganador</option>
+                    <option value="Tesorero">Cuarta Votación: TESORERO — 1 Ganador</option>
+                    <option value="Diaconos">Quinta Votación: DIÁCONOS — 3 Ganadores</option>
                 </select>
                 <button class="btn btn-primary" onclick="cambiarRondaActiva()">Activar Esta Votación</button>
             </div>
         </div>
 
         <h2>Conteo Global y Auditoría por Mesa</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados por votación, desglose por cada mesa y descarga de actas en PDF.</p>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Resultados consolidados por votación (5 rondas), desglose por cada mesa y descarga de actas en PDF.</p>
 
         <!-- PANEL DE RESCATE OFFLINE -->
         <div id="offline-sync-banner" style="display: none; background: #fef3c7; border: 2px solid #f59e0b; padding: 18px; border-radius: 10px; margin-bottom: 25px;">
@@ -185,23 +186,24 @@
         <!-- CONTENEDOR DE DESGLOSE POR MESA -->
         <div id="computer-breakdown-container" style="margin-top: 35px;"></div>
 
-        <!-- 7 BOTONES DE DESCARGA DE PDF -->
+        <!-- 8 BOTONES DE DESCARGA DE PDF (5 RONDAS + 3 GENERALES) -->
         <div class="pdf-actions-wrapper">
             <h3 style="color: #064e3b; margin-bottom: 12px;">📥 Descarga de Actas y Reportes Oficiales (PDF)</h3>
             
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 10px; font-weight: 600;">Reportes Individuales por Votación:</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 10px; font-weight: 600;">Reportes Individuales por Votación (5 Rondas):</p>
             <div class="pdf-buttons-grid">
-                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Misionero General')">📄 1. PDF Misionero (Presidente/Rep. Legal)</button>
-                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Ministro')">📄 2. PDF Ministro</button>
-                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Secretario_Tesorero')">📄 3. PDF Secretario/Tesorero</button>
-                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Diaconos')">📄 4. PDF Diáconos</button>
+                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Misionero')">📄 1. PDF Misionero</button>
+                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Ministros')">📄 2. PDF Ministros</button>
+                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Secretario')">📄 3. PDF Secretario</button>
+                <button class="btn btn-pdf-cargo" onclick="descargarPDFPorCargo('Tesorero')">📄 4. PDF Tesorero</button>
+                <button class="btn btn-pdf-cargo" style="grid-column: 1 / -1;" onclick="descargarPDFPorCargo('Diaconos')">📄 5. PDF Diáconos</button>
             </div>
 
             <p style="color: var(--text-muted); font-size: 0.95rem; margin: 18px 0 10px 0; font-weight: 600;">Reportes Generales y Cuadre por Mesa:</p>
             <div class="pdf-buttons-grid pdf-buttons-generales">
-                <button class="btn btn-pdf-general" onclick="descargarPDF()">📋 5. Descargar Detalle General por DUI</button>
-                <button class="btn btn-pdf-totales" onclick="descargarPDFTotales()">🏆 6. Descargar PDF de Totales Generales</button>
-                <button class="btn" style="background: #0f766e; color: white; grid-column: 1 / -1; font-size: 1.05rem;" onclick="descargarPDFPorComputadora()">🗳️ 7. Descargar PDF Desglosado por Mesa (Mesa 1 a 20)</button>
+                <button class="btn btn-pdf-general" onclick="descargarPDF()">📋 6. Descargar Detalle General por DUI</button>
+                <button class="btn btn-pdf-totales" onclick="descargarPDFTotales()">🏆 7. Descargar PDF de Totales Generales</button>
+                <button class="btn" style="background: #0f766e; color: white; grid-column: 1 / -1; font-size: 1.05rem;" onclick="descargarPDFPorComputadora()">🗳️ 8. Descargar PDF Desglosado por Mesa (Mesa 1 a 20)</button>
             </div>
         </div>
     </div>
@@ -225,26 +227,30 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const GRUPOS = ["Misionero General", "Ministro", "Secretario_Tesorero", "Diaconos"];
+    // Las 5 rondas en el orden exacto solicitado
+    const GRUPOS = ["Misionero", "Ministros", "Secretario", "Tesorero", "Diaconos"];
 
     const NOMBRES_MOSTRAR = {
-        "Misionero General": "MISIONERO (PRESIDENTE/REPRESENTANTE LEGAL)",
-        "Ministro": "MINISTRO",
-        "Secretario_Tesorero": "SECRETARIO/TESORERO",
+        "Misionero": "MISIONERO",
+        "Ministros": "MINISTROS",
+        "Secretario": "SECRETARIO",
+        "Tesorero": "TESORERO",
         "Diaconos": "DIÁCONOS"
     };
 
     const ETIQUETAS_VOTACION = {
-        "Misionero General": "Primera Votación",
-        "Ministro": "Segunda Votación",
-        "Secretario_Tesorero": "Tercera Votación",
-        "Diaconos": "Cuarta Votación"
+        "Misionero": "Primera Votación",
+        "Ministros": "Segunda Votación",
+        "Secretario": "Tercera Votación",
+        "Tesorero": "Cuarta Votación",
+        "Diaconos": "Quinta Votación"
     };
 
     const GANADORES_POR_GRUPO = {
-        "Misionero General": 1,
-        "Ministro": 2,
-        "Secretario_Tesorero": 2,
+        "Misionero": 1,
+        "Ministros": 2,
+        "Secretario": 1,
+        "Tesorero": 1,
         "Diaconos": 3
     };
 
@@ -252,7 +258,7 @@
     let candidatos = JSON.parse(localStorage.getItem('candidatos_cache_plan_b')) || [];
     
     let rondaGuardada = localStorage.getItem('ronda_activa_plan_b');
-    let rondaActiva = GRUPOS.includes(rondaGuardada) ? rondaGuardada : "Misionero General";
+    let rondaActiva = GRUPOS.includes(rondaGuardada) ? rondaGuardada : "Misionero";
     let computadoraAsignada = localStorage.getItem('computadora_asignada_plan_b') || "";
     
     let candidatoSeleccionadoRonda = null;
@@ -578,7 +584,7 @@
 
         if (esAdmin) {
             nav.style.display = 'flex';
-            document.getElementById('main-subtitle').innerText = "Panel de Control de Votaciones y Conteo";
+            document.getElementById('main-subtitle').innerText = "Panel de Control de Votaciones y Conteo (5 Rondas)";
             switchTab('resultados');
         } else {
             nav.style.display = 'none';
@@ -1040,7 +1046,7 @@
             container.innerHTML = `
                 <div style="background: #f0fdf4; border: 1px solid #a7f3d0; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 30px; flex-wrap: wrap;">
                     <div><strong style="color: #064e3b;">👥 Hermanos únicos que han participado:</strong> <span style="font-size: 1.25rem; font-weight: 800; color: #059669;">${hermanosUnicos}</span></div>
-                    <div><strong style="color: #064e3b;">🗳️ Total de votos emitidos (todas las votaciones):</strong> <span style="font-size: 1.25rem; font-weight: 800; color: #059669;">${votosGuardados.length}</span></div>
+                    <div><strong style="color: #064e3b;">🗳️ Total de votos emitidos (5 votaciones):</strong> <span style="font-size: 1.25rem; font-weight: 800; color: #059669;">${votosGuardados.length}</span></div>
                 </div>
             `;
 
@@ -1178,7 +1184,7 @@
         targetEl.innerHTML = html;
     }
 
-    // --- PDF 7: DESGLOSADO POR MESA (LETRA 15pt) ---
+    // --- PDF 8: DESGLOSADO POR MESA (LETRA 15pt) ---
     async function descargarPDFPorComputadora() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait');
@@ -1262,7 +1268,7 @@
         }
     }
 
-    // --- PDF 1 A 4: ACTAS POR CARGO (LETRA 15pt) ---
+    // --- PDF 1 A 5: ACTAS POR CARGO (LETRA 15pt) ---
     async function descargarPDFPorCargo(grupo) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait');
@@ -1338,7 +1344,7 @@
         }
     }
 
-    // --- PDF 5: DETALLE GENERAL POR DUI (LETRA 15pt) ---
+    // --- PDF 6: DETALLE GENERAL POR DUI (5 RONDAS) ---
     async function descargarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape'); 
@@ -1367,9 +1373,10 @@
             const tableColumn = [
                 "DUI",
                 "1.ª Misionero",
-                "2.ª Ministro",
-                "3.ª Sec./Tesorero",
-                "4.ª Diáconos"
+                "2.ª Ministros",
+                "3.ª Secretario",
+                "4.ª Tesorero",
+                "5.ª Diáconos"
             ];
             const tableRows = [];
 
@@ -1377,9 +1384,10 @@
                 const registro = votosPorDui[dui];
                 tableRows.push([
                     dui,
-                    registro["Misionero General"] || "-",
-                    registro["Ministro"] || "-",
-                    registro["Secretario_Tesorero"] || "-",
+                    registro["Misionero"] || "-",
+                    registro["Ministros"] || "-",
+                    registro["Secretario"] || "-",
+                    registro["Tesorero"] || "-",
                     registro["Diaconos"] || "-"
                 ]);
             });
@@ -1388,8 +1396,8 @@
                 head: [tableColumn],
                 body: tableRows,
                 startY: 38,
-                styles: { fontSize: 15, cellPadding: 3 },
-                headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontSize: 15 },
+                styles: { fontSize: 13, cellPadding: 3 },
+                headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontSize: 13 },
                 alternateRowStyles: { fillColor: [240, 253, 244] }
             });
 
@@ -1399,7 +1407,7 @@
         }
     }
 
-    // --- PDF 6: TOTALES CONSOLIDADOS (LETRA 15pt) ---
+    // --- PDF 7: TOTALES CONSOLIDADOS (5 RONDAS) ---
     async function descargarPDFTotales() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait'); 
@@ -1415,7 +1423,7 @@
 
             doc.setFontSize(15);
             doc.text(`Total hermanos participantes (DUIs únicos): ${hermanosUnicos}`, 14, 33);
-            doc.text(`Total votos emitidos (4 votaciones): ${votosList.length}`, 14, 41);
+            doc.text(`Total votos emitidos (5 votaciones): ${votosList.length}`, 14, 41);
 
             let startY = 51;
 
